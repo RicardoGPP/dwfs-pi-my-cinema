@@ -1,8 +1,5 @@
 package br.pucminas.dwfs.pi.core.user.boundary;
 
-import java.util.List;
-import java.util.Optional;
-
 import br.pucminas.dwfs.pi.core.user.control.service.AuthService;
 import br.pucminas.dwfs.pi.core.user.control.service.UserService;
 import br.pucminas.dwfs.pi.core.user.entity.User;
@@ -31,73 +28,101 @@ public class UserResource {
     @Inject
     AuthService authService;
 
-    @POST
-    @Path("/register")
-    @Transactional
-    public Response create(User user) {
-        userService.create(user);
+    @GET
+    @Path("/{id}")
+    @RolesAllowed({"CUSTOMER", "EMPLOYEE"})
+    public Response getById(@PathParam("id") Long id) {
+        User user = userService.getById(id);
 
-        return Response.status(Response.Status.CREATED).build();
-    }
-
-    @POST
-    @Path("/login")
-    public Response login(User user) {
-        Optional<String> token = authService.login(user.getEmail(), user.getPassword());
-
-        if (!token.isPresent()) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid email or password").build();
+        if (user == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
         }
 
-        return Response.ok().entity("{\"token\":\"" + token.get() + "\"}").build();
+        return Response
+            .ok()
+            .entity(user)
+            .build();
     }
 
     @GET
     @RolesAllowed("EMPLOYEE")
-    public List<User> getAllUsers() {
-        return userService.getAll();
+    public Response getAll() {
+        return Response
+            .ok()
+            .entity(userService.getAll())
+            .build();
     }
 
-    @GET
-    @Path("/{id}")
-    @RolesAllowed({"CUSTOMER", "EMPLOYEE"})
-    public Response getUserById(@PathParam("id") Long id) {
-        Optional<User> user = userService.getById(id);
+    @POST
+    @Transactional
+    public Response create(User user) {
+        User createdUser = userService.create(user);
 
-        return user
-            .map(u -> Response.ok(u).build())
-            .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+        return Response
+            .status(Response.Status.CREATED)
+            .entity(createdUser)
+            .build();
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
     @RolesAllowed({"CUSTOMER", "EMPLOYEE"})
-    public Response updateUser(@PathParam("id") Long id, User updatedUser) {
-        Optional<User> user = userService.getById(id);
+    public Response update(@PathParam("id") Long id, User newUser) {
+        User oldUser = userService.getById(id);
 
-        if (!user.isPresent()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+        if (oldUser == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
         }
 
-        userService.update(id, updatedUser);
+        userService.update(oldUser, newUser);
 
-        return Response.ok().build();
+        return Response
+            .ok()
+            .entity(newUser)
+            .build();
     }
 
     @DELETE
     @Path("/{id}")
     @Transactional
     @RolesAllowed("EMPLOYEE")
-    public Response deleteUser(@PathParam("id") Long id) {
-        Optional<User> user = userService.getById(id);
+    public Response delete(@PathParam("id") Long id) {
+        User user = userService.getById(id);
 
-        if (!user.isPresent()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+        if (user == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
         }
 
         userService.delete(id);
 
-        return Response.noContent().build();
+        return Response
+            .ok()
+            .entity(user)
+            .build();
+    }
+
+    @POST
+    @Path("/login")
+    public Response login(User user) {
+        String token = authService.login(user.getEmail(), user.getPassword());
+
+        if (token == null) {
+            return Response
+                .status(Response.Status.UNAUTHORIZED)
+                .entity("Invalid email or password")
+                .build();
+        }
+
+        return Response
+            .ok()
+            .entity("{\"token\":\"" + token + "\"}")
+            .build();
     }
 }
