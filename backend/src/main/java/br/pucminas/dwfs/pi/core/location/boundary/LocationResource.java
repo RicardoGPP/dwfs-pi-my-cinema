@@ -24,7 +24,7 @@ public class LocationResource {
     LocationService locationService;
 
     @GET
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response getAll() {
         return Response
             .ok()
@@ -34,7 +34,7 @@ public class LocationResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response getById(@PathParam("id") Long id) {
         Location location = locationService.getById(id);
 
@@ -51,7 +51,7 @@ public class LocationResource {
     }
 
     @POST
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response create(Location location) {
         Location createdLocation = locationService.create(location);
 
@@ -63,7 +63,7 @@ public class LocationResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response update(@PathParam("id") Long id, Location newLocation) {
         Location oldLocation = locationService.getById(id);
 
@@ -83,7 +83,7 @@ public class LocationResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {
         Location location = locationService.getById(id);
 

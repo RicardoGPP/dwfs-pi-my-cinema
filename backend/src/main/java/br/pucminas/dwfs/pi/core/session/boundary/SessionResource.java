@@ -24,7 +24,7 @@ public class SessionResource {
     SessionService sessionService;
 
     @GET
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response getAll() {
         return Response
             .ok()
@@ -34,7 +34,7 @@ public class SessionResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response getById(@PathParam("id") Long id) {
         Session session = sessionService.getById(id);
 
@@ -51,7 +51,7 @@ public class SessionResource {
     }
 
     @POST
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response create(Session session) {
         Session createdSession = sessionService.create(session);
 
@@ -63,7 +63,7 @@ public class SessionResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response update(@PathParam("id") Long id, Session newSession) {
         Session oldSession = sessionService.getById(id);
 
@@ -83,7 +83,7 @@ public class SessionResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {
         Session session = sessionService.getById(id);
 

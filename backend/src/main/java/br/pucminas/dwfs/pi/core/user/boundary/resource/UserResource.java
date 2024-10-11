@@ -1,5 +1,15 @@
-package br.pucminas.dwfs.pi.core.user.boundary;
+package br.pucminas.dwfs.pi.core.user.boundary.resource;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserCreateDto;
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserDto;
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserLoginDto;
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserUpdateDto;
+import br.pucminas.dwfs.pi.core.user.control.mapper.UserMapper;
 import br.pucminas.dwfs.pi.core.user.control.service.AuthService;
 import br.pucminas.dwfs.pi.core.user.control.service.UserService;
 import br.pucminas.dwfs.pi.core.user.entity.User;
@@ -18,6 +28,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/users")
+@Tag(name = "Users", description = "Resource for interacting with users.")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource {
@@ -28,9 +39,12 @@ public class UserResource {
     @Inject
     AuthService authService;
 
+    @Inject
+    UserMapper userMapper;
+
     @GET
     @Path("/{id}")
-    @RolesAllowed({"CUSTOMER", "EMPLOYEE"})
+    @RolesAllowed({"USER", "ADMIN"})
     public Response getById(@PathParam("id") Long id) {
         User user = userService.getById(id);
 
@@ -40,37 +54,49 @@ public class UserResource {
                 .build();
         }
 
+        UserDto userDto = userMapper.fromUser_toUserDto(user);
+
         return Response
             .ok()
-            .entity(user)
+            .entity(userDto)
             .build();
     }
 
     @GET
-    @RolesAllowed("EMPLOYEE")
+    @RolesAllowed("ADMIN")
     public Response getAll() {
+        List<User> users = userService.getAll();
+
+        List<UserDto> usersDto = new ArrayList<>(users.size());
+
+        for (User user : users) {
+            usersDto.add(userMapper.fromUser_toUserDto(user));
+        }
+
         return Response
             .ok()
-            .entity(userService.getAll())
+            .entity(usersDto)
             .build();
     }
 
     @POST
     @Transactional
-    public Response create(User user) {
-        User createdUser = userService.create(user);
+    public Response create(UserCreateDto userCreateDto) {
+        User user = userMapper.fromUserCreateDto_toUser(userCreateDto);
+
+        user = userService.create(user);
 
         return Response
             .status(Response.Status.CREATED)
-            .entity(createdUser)
+            .entity(user)
             .build();
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
-    @RolesAllowed({"CUSTOMER", "EMPLOYEE"})
-    public Response update(@PathParam("id") Long id, User newUser) {
+    @RolesAllowed({"USER", "ADMIN"})
+    public Response update(@PathParam("id") Long id, UserUpdateDto userUpdateDto) {
         User oldUser = userService.getById(id);
 
         if (oldUser == null) {
@@ -78,6 +104,8 @@ public class UserResource {
                 .status(Response.Status.NOT_FOUND)
                 .build();
         }
+
+        User newUser = userMapper.fromUserUpdateDto_toUser(userUpdateDto);
 
         userService.update(oldUser, newUser);
 
@@ -90,7 +118,7 @@ public class UserResource {
     @DELETE
     @Path("/{id}")
     @Transactional
-    @RolesAllowed("EMPLOYEE")
+    @RolesAllowed({"USER", "ADMIN"})
     public Response delete(@PathParam("id") Long id) {
         User user = userService.getById(id);
 
@@ -100,18 +128,23 @@ public class UserResource {
                 .build();
         }
 
-        userService.delete(id);
+        userService.delete(user);
+
+        UserDto userDto = userMapper.fromUser_toUserDto(user);
 
         return Response
             .ok()
-            .entity(user)
+            .entity(userDto)
             .build();
     }
 
     @POST
     @Path("/login")
-    public Response login(User user) {
-        String token = authService.login(user.getEmail(), user.getPassword());
+    public Response login(UserLoginDto userLoginDto) {
+        String email = userLoginDto.getEmail();
+        String password = userLoginDto.getPassword();
+
+        String token = authService.login(email, password);
 
         if (token == null) {
             return Response

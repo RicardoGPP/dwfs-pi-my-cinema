@@ -26,7 +26,7 @@ public class CommentResource {
     MovieService movieService;
 
     @POST
-    @RolesAllowed({"EMPLOYEE", "CUSTOMER"})
+    @RolesAllowed({"USER", "ADMIN"})
     public Response create(Comment comment) {
         Comment createdComment = commentService.create(comment);
 
@@ -38,7 +38,7 @@ public class CommentResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE", "CUSTOMER"})
+    @RolesAllowed({"USER", "ADMIN"})
     public Response delete(@PathParam("id") Long id) {
         Comment comment = commentService.getById(id);
 

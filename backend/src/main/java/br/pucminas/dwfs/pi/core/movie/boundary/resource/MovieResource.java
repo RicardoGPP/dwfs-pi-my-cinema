@@ -32,7 +32,7 @@ public class MovieResource {
     CommentService commentService;
 
     @GET
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response getAll() {
         return Response
             .ok()
@@ -58,7 +58,7 @@ public class MovieResource {
     }
 
     @POST
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response create(Movie movie) {
         Movie createdMovie = movieService.create(movie);
 
@@ -70,7 +70,7 @@ public class MovieResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response update(@PathParam("id") Long id, Movie newMovie) {
         Movie oldMovie = movieService.getById(id);
 
@@ -90,7 +90,7 @@ public class MovieResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {
         Movie movie = movieService.getById(id);
 
@@ -110,7 +110,7 @@ public class MovieResource {
 
     @GET
     @Path("/preview")
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed("ADMIN")
     public Response getPreviewByName(@QueryParam("name") String name) {
         String preview = movieService.getPreviewByName(name);
 
