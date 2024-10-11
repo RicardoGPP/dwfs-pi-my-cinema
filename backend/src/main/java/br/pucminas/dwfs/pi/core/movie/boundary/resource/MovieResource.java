@@ -1,5 +1,9 @@
 package br.pucminas.dwfs.pi.core.movie.boundary.resource;
 
+import java.util.List;
+
+import br.pucminas.dwfs.pi.core.comment.control.service.CommentService;
+import br.pucminas.dwfs.pi.core.comment.entity.Comment;
 import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import jakarta.annotation.security.RolesAllowed;
@@ -23,6 +27,9 @@ public class MovieResource {
 
     @Inject
     MovieService movieService;
+
+    @Inject
+    CommentService commentService;
 
     @GET
     @RolesAllowed({"EMPLOYEE"})
@@ -117,5 +124,55 @@ public class MovieResource {
             .ok()
             .entity(preview)
             .build();
+    }
+
+    @GET
+    @Path("/{id}/comments")
+    public Response getComments(@PathParam("id") Long id) {
+        Movie movie = movieService.getById(id);
+
+        if (movie == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
+        }
+
+        return Response
+            .ok()
+            .entity(commentService.getAllByMovie(movie))
+            .build();
+    }
+
+    @GET
+    @Path("/{id}/comments/summary")
+    public Response getSummary(@PathParam("id") Long id) {
+        Movie movie = movieService.getById(id);
+
+        if (movie == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
+        }
+
+        List<Comment> comments = commentService.getAllByMovie(movie);
+
+        if (comments.isEmpty()) {
+            return Response
+                .noContent()
+                .build();
+        }
+
+        String summary = commentService.getSummary(comments);
+
+        if (summary == null) {
+            return Response
+                .noContent()
+                .build();
+        }
+
+        return Response
+                .ok()
+                .entity(summary)
+                .build();
     }
 }
