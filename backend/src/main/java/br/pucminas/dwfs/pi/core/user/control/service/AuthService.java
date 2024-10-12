@@ -1,5 +1,6 @@
 package br.pucminas.dwfs.pi.core.user.control.service;
 
+import java.time.Duration;
 import java.util.Set;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -43,6 +44,7 @@ public class AuthService {
             .issuer(issuer)
             .upn(user.getEmail())
             .groups(Set.of(user.getRole().name()))
+            .expiresIn(Duration.ofHours(24))
             .sign();
     }
 }
