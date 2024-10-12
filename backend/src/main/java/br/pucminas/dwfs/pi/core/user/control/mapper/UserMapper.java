@@ -1,5 +1,7 @@
 package br.pucminas.dwfs.pi.core.user.control.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -13,6 +15,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 @Mapper(componentModel = "jakarta", imports = UserRole.class)
 public interface UserMapper {
+
+    List<UserDto> fromUsers_toUsersDto(List<User> users);
 
     UserDto fromUser_toUserDto(User user);
 

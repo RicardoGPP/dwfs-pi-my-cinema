@@ -1,6 +1,5 @@
 package br.pucminas.dwfs.pi.core.user.boundary.resource;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -67,11 +66,7 @@ public class UserResource {
     public Response getAll() {
         List<User> users = userService.getAll();
 
-        List<UserDto> usersDto = new ArrayList<>(users.size());
-
-        for (User user : users) {
-            usersDto.add(userMapper.fromUser_toUserDto(user));
-        }
+        List<UserDto> usersDto = userMapper.fromUsers_toUsersDto(users);
 
         return Response
             .ok()
@@ -86,9 +81,11 @@ public class UserResource {
 
         user = userService.create(user);
 
+        UserDto userDto = userMapper.fromUser_toUserDto(user);
+
         return Response
             .status(Response.Status.CREATED)
-            .entity(user)
+            .entity(userDto)
             .build();
     }
 
@@ -109,9 +106,11 @@ public class UserResource {
 
         userService.update(oldUser, newUser);
 
+        UserDto userDto = userMapper.fromUser_toUserDto(newUser);
+
         return Response
             .ok()
-            .entity(newUser)
+            .entity(userDto)
             .build();
     }
 
