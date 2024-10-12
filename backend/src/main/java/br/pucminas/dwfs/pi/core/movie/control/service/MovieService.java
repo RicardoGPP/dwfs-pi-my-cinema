@@ -36,8 +36,11 @@ public class MovieService {
         return movieRepository.findById(id);
     }
 
-    public String getPreviewByName(String movieName) {
-        return tmdbRestClient.getByName(movieName, apiKey, language);
+    public Movie getPreview(String name) {
+        //TODO: Implement real movie preview retrieval.
+        String response = tmdbRestClient.getByName(name, apiKey, language);
+        System.out.println(response);
+        return null;
     }
 
     @Transactional

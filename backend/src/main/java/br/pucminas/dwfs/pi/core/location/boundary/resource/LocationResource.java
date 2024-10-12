@@ -1,7 +1,13 @@
-package br.pucminas.dwfs.pi.core.location.boundary;
+package br.pucminas.dwfs.pi.core.location.boundary.resource;
+
+import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import br.pucminas.dwfs.pi.core.location.boundary.dto.LocationCreateDto;
+import br.pucminas.dwfs.pi.core.location.boundary.dto.LocationDto;
+import br.pucminas.dwfs.pi.core.location.boundary.dto.LocationUpdateDto;
+import br.pucminas.dwfs.pi.core.location.control.mapper.LocationMapper;
 import br.pucminas.dwfs.pi.core.location.control.service.LocationService;
 import br.pucminas.dwfs.pi.core.location.entity.Location;
 import jakarta.annotation.security.RolesAllowed;
@@ -26,12 +32,19 @@ public class LocationResource {
     @Inject
     LocationService locationService;
 
+    @Inject
+    LocationMapper locationMapper;
+
     @GET
     @RolesAllowed("ADMIN")
     public Response getAll() {
+        List<Location> locations = locationService.getAll();
+
+        List<LocationDto> locationsDto = locationMapper.fromLocations_toLocationsDto(locations);
+
         return Response
             .ok()
-            .entity(locationService.getAll())
+            .entity(locationsDto)
             .build();
     }
 
@@ -47,27 +60,33 @@ public class LocationResource {
                 .build();
         }
 
+        LocationDto locationDto = locationMapper.fromLocation_toLocationDto(location);
+
         return Response
             .ok()
-            .entity(location)
+            .entity(locationDto)
             .build();
     }
 
     @POST
     @RolesAllowed("ADMIN")
-    public Response create(Location location) {
-        Location createdLocation = locationService.create(location);
+    public Response create(LocationCreateDto locationCreateDto) {
+        Location location = locationMapper.fromLocationCreateDto_toLocation(locationCreateDto);
+
+        location = locationService.create(location);
+
+        LocationDto locationDto = locationMapper.fromLocation_toLocationDto(location);
 
         return Response
             .status(Response.Status.CREATED)
-            .entity(createdLocation)
+            .entity(locationDto)
             .build();
     }
 
     @PUT
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Response update(@PathParam("id") Long id, Location newLocation) {
+    public Response update(@PathParam("id") Long id, LocationUpdateDto locationUpdateDto) {
         Location oldLocation = locationService.getById(id);
 
         if (oldLocation == null) {
@@ -76,11 +95,15 @@ public class LocationResource {
                 .build();
         }
 
+        Location newLocation = locationMapper.fromLocationUpdateDto_toLocation(locationUpdateDto);
+
         locationService.update(oldLocation, newLocation);
+
+        LocationDto locationDto = locationMapper.fromLocation_toLocationDto(newLocation);
 
         return Response
             .ok()
-            .entity(newLocation)
+            .entity(locationDto)
             .build();
     }
 
@@ -98,9 +121,11 @@ public class LocationResource {
 
         locationService.delete(id);
 
+        LocationDto locationDto = locationMapper.fromLocation_toLocationDto(location);
+
         return Response
             .ok()
-            .entity(location)
+            .entity(locationDto)
             .build();
     }
 }

@@ -1,7 +1,13 @@
 package br.pucminas.dwfs.pi.core.movie.boundary.resource;
 
+import java.util.List;
+
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import br.pucminas.dwfs.pi.core.movie.boundary.dto.MovieCreateDto;
+import br.pucminas.dwfs.pi.core.movie.boundary.dto.MovieDto;
+import br.pucminas.dwfs.pi.core.movie.boundary.dto.MovieUpdateDto;
+import br.pucminas.dwfs.pi.core.movie.control.mapper.MovieMapper;
 import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import jakarta.annotation.security.RolesAllowed;
@@ -27,12 +33,19 @@ public class MovieResource {
     @Inject
     MovieService movieService;
 
+    @Inject
+    MovieMapper movieMapper;
+
     @GET
     @RolesAllowed("ADMIN")
     public Response getAll() {
+        List<Movie> movies = movieService.getAll();
+
+        List<MovieDto> moviesDto = movieMapper.fromMovies_toMoviesDto(movies);
+
         return Response
             .ok()
-            .entity(movieService.getAll())
+            .entity(moviesDto)
             .build();
     }
 
@@ -47,27 +60,33 @@ public class MovieResource {
                 .build();
         }
 
+        MovieDto movieDto = movieMapper.fromMovie_toMovieDto(movie);
+
         return Response
             .ok()
-            .entity(movie)
+            .entity(movieDto)
             .build();
     }
 
     @POST
     @RolesAllowed("ADMIN")
-    public Response create(Movie movie) {
-        Movie createdMovie = movieService.create(movie);
+    public Response create(MovieCreateDto movieCreateDto) {
+        Movie movie = movieMapper.fromMovieCreateDto_toMovie(movieCreateDto);
+
+        movie = movieService.create(movie);
+
+        MovieDto movieDto = movieMapper.fromMovie_toMovieDto(movie);
 
         return Response
             .status(Response.Status.CREATED)
-            .entity(createdMovie)
+            .entity(movieDto)
             .build();
     }
 
     @PUT
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Response update(@PathParam("id") Long id, Movie newMovie) {
+    public Response update(@PathParam("id") Long id, MovieUpdateDto movieUpdateDto) {
         Movie oldMovie = movieService.getById(id);
 
         if (oldMovie == null) {
@@ -76,11 +95,15 @@ public class MovieResource {
                 .build();
         }
 
+        Movie newMovie = movieMapper.fromMovieUpdateDto_toMovie(movieUpdateDto);
+
         movieService.update(oldMovie, newMovie);
+
+        MovieDto movieDto = movieMapper.fromMovie_toMovieDto(newMovie);
 
         return Response
             .ok()
-            .entity(newMovie)
+            .entity(movieDto)
             .build();
     }
 
@@ -98,27 +121,31 @@ public class MovieResource {
 
         movieService.delete(movie);
 
+        MovieDto movieDto = movieMapper.fromMovie_toMovieDto(movie);
+
         return Response
             .ok()
-            .entity(movie)
+            .entity(movieDto)
             .build();
     }
 
     @GET
     @Path("/preview")
     @RolesAllowed("ADMIN")
-    public Response getPreviewByName(@QueryParam("name") String name) {
-        String preview = movieService.getPreviewByName(name);
+    public Response getPreview(@QueryParam("name") String name) {
+        Movie movie = movieService.getPreview(name);
 
-        if (preview == null) {
+        if (movie == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
                 .build();
         }
 
+        MovieDto movieDto = movieMapper.fromMovie_toMovieDto(movie);
+
         return Response
             .ok()
-            .entity(preview)
+            .entity(movieDto)
             .build();
     }
 }
