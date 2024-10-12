@@ -2,6 +2,7 @@ package br.pucminas.dwfs.pi.core.session.control.service;
 
 import java.util.List;
 
+import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import br.pucminas.dwfs.pi.core.session.control.repository.SessionRepository;
 import br.pucminas.dwfs.pi.core.session.entity.Session;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,6 +17,10 @@ public class SessionService {
 
     public List<Session> getAll() {
         return sessionRepository.listAll();
+    }
+
+    public List<Session> getAllByMovie(Movie movie) {
+        return sessionRepository.findByMovieId(movie.getId());
     }
 
     public Session getById(Long id) {

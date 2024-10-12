@@ -1,5 +1,9 @@
 package br.pucminas.dwfs.pi.core.session.boundary;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
+import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
+import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import br.pucminas.dwfs.pi.core.session.control.service.SessionService;
 import br.pucminas.dwfs.pi.core.session.entity.Session;
 import jakarta.annotation.security.RolesAllowed;
@@ -12,10 +16,12 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/sessions")
+@Tag(name = "Sessions", description = "Resource for interacting with sessions.")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class SessionResource {
@@ -23,12 +29,30 @@ public class SessionResource {
     @Inject
     SessionService sessionService;
 
+    @Inject
+    MovieService movieService;
+
     @GET
     @RolesAllowed("ADMIN")
-    public Response getAll() {
+    public Response getAll(@QueryParam("movie-id") Long movieId) {
+        if (movieId == null) {
+            return Response
+                .ok()
+                .entity(sessionService.getAll())
+                .build();
+        }
+
+        Movie movie = movieService.getById(movieId);
+
+        if (movie == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
+        }
+
         return Response
             .ok()
-            .entity(sessionService.getAll())
+            .entity(sessionService.getAllByMovie(movie))
             .build();
     }
 

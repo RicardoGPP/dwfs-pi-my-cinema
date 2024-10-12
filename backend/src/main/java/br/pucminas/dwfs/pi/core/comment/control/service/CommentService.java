@@ -36,12 +36,16 @@ public class CommentService {
     @RestClient
     OpenAIRestClient openAIRestClient;
 
-    public Comment getById(Long id) {
-        return commentRepository.findById(id);
+    public List<Comment> getAll() {
+        return commentRepository.listAll();
     }
 
     public List<Comment> getAllByMovie(Movie movie) {
         return commentRepository.findByMovieId(movie.getId());
+    }
+
+    public Comment getById(Long id) {
+        return commentRepository.findById(id);
     }
 
     @Transactional

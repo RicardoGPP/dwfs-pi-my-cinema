@@ -2,7 +2,6 @@ package br.pucminas.dwfs.pi.core.movie.boundary.resource;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import br.pucminas.dwfs.pi.core.comment.boundary.resource.CommentResource;
 import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import jakarta.annotation.security.RolesAllowed;
@@ -27,9 +26,6 @@ public class MovieResource {
 
     @Inject
     MovieService movieService;
-
-    @Inject
-    CommentResource commentResource;
 
     @GET
     @RolesAllowed("ADMIN")
@@ -124,17 +120,5 @@ public class MovieResource {
             .ok()
             .entity(preview)
             .build();
-    }
-
-    @GET
-    @Path("/{id}/comments")
-    public Response getComments(@PathParam("id") Long id) {
-        return commentResource.getAllByMovie(id);
-    }
-
-    @GET
-    @Path("/{id}/comments/summary")
-    public Response getSummary(@PathParam("id") Long id) {
-        return commentResource.getSummary(id);
     }
 }

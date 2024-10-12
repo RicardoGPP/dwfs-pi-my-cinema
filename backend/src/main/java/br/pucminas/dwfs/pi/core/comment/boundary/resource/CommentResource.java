@@ -34,7 +34,14 @@ public class CommentResource {
     MovieService movieService;
 
     @GET
-    public Response getAllByMovie(@QueryParam("movie-id") Long movieId) {
+    public Response getAll(@QueryParam("movie-id") Long movieId) {
+        if (movieId == null) {
+            return Response
+                .ok()
+                .entity(commentService.getAll())
+                .build();
+        }
+
         Movie movie = movieService.getById(movieId);
 
         if (movie == null) {

@@ -18,7 +18,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/locations")
-@Tag(name = "Comments", description = "Resource for interacting with locations.")
+@Tag(name = "Locations", description = "Resource for interacting with locations.")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class LocationResource {
