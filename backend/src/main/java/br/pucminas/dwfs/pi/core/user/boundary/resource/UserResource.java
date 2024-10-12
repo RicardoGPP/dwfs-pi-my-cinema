@@ -1,11 +1,18 @@
-package br.pucminas.dwfs.pi.core.user.boundary;
+package br.pucminas.dwfs.pi.core.user.boundary.resource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserCreateDto;
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserDto;
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserLoginDto;
+import br.pucminas.dwfs.pi.core.user.boundary.dto.UserUpdateDto;
+import br.pucminas.dwfs.pi.core.user.control.mapper.UserMapper;
 import br.pucminas.dwfs.pi.core.user.control.service.AuthService;
 import br.pucminas.dwfs.pi.core.user.control.service.UserService;
 import br.pucminas.dwfs.pi.core.user.entity.User;
-import br.pucminas.dwfs.pi.core.user.entity.UserRole;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -32,6 +39,9 @@ public class UserResource {
     @Inject
     AuthService authService;
 
+    @Inject
+    UserMapper userMapper;
+
     @GET
     @Path("/{id}")
     @RolesAllowed({"USER", "ADMIN"})
@@ -44,32 +54,41 @@ public class UserResource {
                 .build();
         }
 
+        UserDto userDto = userMapper.fromUser_toUserDto(user);
+
         return Response
             .ok()
-            .entity(user)
+            .entity(userDto)
             .build();
     }
 
     @GET
     @RolesAllowed("ADMIN")
     public Response getAll() {
+        List<User> users = userService.getAll();
+
+        List<UserDto> usersDto = new ArrayList<>(users.size());
+
+        for (User user : users) {
+            usersDto.add(userMapper.fromUser_toUserDto(user));
+        }
+
         return Response
             .ok()
-            .entity(userService.getAll())
+            .entity(usersDto)
             .build();
     }
 
     @POST
     @Transactional
-    public Response create(User user) {
-        user.setId(null);
-        user.setRole(UserRole.USER);
+    public Response create(UserCreateDto userCreateDto) {
+        User user = userMapper.fromUserCreateDto_toUser(userCreateDto);
 
-        User createdUser = userService.create(user);
+        user = userService.create(user);
 
         return Response
             .status(Response.Status.CREATED)
-            .entity(createdUser)
+            .entity(user)
             .build();
     }
 
@@ -77,7 +96,7 @@ public class UserResource {
     @Path("/{id}")
     @Transactional
     @RolesAllowed({"USER", "ADMIN"})
-    public Response update(@PathParam("id") Long id, User newUser) {
+    public Response update(@PathParam("id") Long id, UserUpdateDto userUpdateDto) {
         User oldUser = userService.getById(id);
 
         if (oldUser == null) {
@@ -85,6 +104,8 @@ public class UserResource {
                 .status(Response.Status.NOT_FOUND)
                 .build();
         }
+
+        User newUser = userMapper.fromUserUpdateDto_toUser(userUpdateDto);
 
         userService.update(oldUser, newUser);
 
@@ -109,16 +130,21 @@ public class UserResource {
 
         userService.delete(user);
 
+        UserDto userDto = userMapper.fromUser_toUserDto(user);
+
         return Response
             .ok()
-            .entity(user)
+            .entity(userDto)
             .build();
     }
 
     @POST
     @Path("/login")
-    public Response login(User user) {
-        String token = authService.login(user.getEmail(), user.getPassword());
+    public Response login(UserLoginDto userLoginDto) {
+        String email = userLoginDto.getEmail();
+        String password = userLoginDto.getPassword();
+
+        String token = authService.login(email, password);
 
         if (token == null) {
             return Response
