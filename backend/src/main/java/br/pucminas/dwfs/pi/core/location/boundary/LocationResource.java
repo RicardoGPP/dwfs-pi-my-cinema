@@ -1,5 +1,7 @@
 package br.pucminas.dwfs.pi.core.location.boundary;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+
 import br.pucminas.dwfs.pi.core.location.control.service.LocationService;
 import br.pucminas.dwfs.pi.core.location.entity.Location;
 import jakarta.annotation.security.RolesAllowed;
@@ -16,6 +18,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/locations")
+@Tag(name = "Comments", description = "Resource for interacting with locations.")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class LocationResource {
