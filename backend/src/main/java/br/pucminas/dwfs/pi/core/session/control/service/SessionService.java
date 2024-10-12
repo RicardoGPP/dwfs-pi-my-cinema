@@ -44,7 +44,7 @@ public class SessionService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        sessionRepository.deleteById(id);
+    public void delete(Session session) {
+        sessionRepository.deleteById(session.getId());
     }
 }
