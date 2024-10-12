@@ -12,6 +12,7 @@ import br.pucminas.dwfs.pi.core.location.control.service.LocationService;
 import br.pucminas.dwfs.pi.core.location.entity.Location;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -69,6 +70,7 @@ public class LocationResource {
     }
 
     @POST
+    @Transactional
     @RolesAllowed("ADMIN")
     public Response create(LocationCreateDto locationCreateDto) {
         Location location = locationMapper.fromLocationCreateDto_toLocation(locationCreateDto);
@@ -84,6 +86,7 @@ public class LocationResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response update(@PathParam("id") Long id, LocationUpdateDto locationUpdateDto) {
@@ -108,6 +111,7 @@ public class LocationResource {
     }
 
     @DELETE
+    @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {

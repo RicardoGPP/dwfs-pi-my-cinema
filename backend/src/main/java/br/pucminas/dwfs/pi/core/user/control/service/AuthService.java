@@ -43,6 +43,7 @@ public class AuthService {
         return Jwt
             .issuer(issuer)
             .upn(user.getEmail())
+            .claim("name", user.getName())
             .groups(Set.of(user.getRole().name()))
             .expiresIn(Duration.ofHours(24))
             .sign();

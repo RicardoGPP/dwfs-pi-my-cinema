@@ -16,6 +16,7 @@ import br.pucminas.dwfs.pi.core.user.control.service.UserService;
 import br.pucminas.dwfs.pi.core.user.entity.User;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -98,6 +99,7 @@ public class CommentResource {
     }
 
     @POST
+    @Transactional
     @RolesAllowed({"USER", "ADMIN"})
     public Response create(CommentCreateDto commentCreateDto) {
         Long movieId = commentCreateDto.getMovieId();
@@ -137,6 +139,7 @@ public class CommentResource {
     }
 
     @DELETE
+    @Transactional
     @Path("/{id}")
     @RolesAllowed({"USER", "ADMIN"})
     public Response delete(@PathParam("id") Long id) {

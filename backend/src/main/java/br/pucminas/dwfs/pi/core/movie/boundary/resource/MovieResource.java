@@ -12,6 +12,7 @@ import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -68,7 +69,28 @@ public class MovieResource {
             .build();
     }
 
+    @GET
+    @Path("/preview")
+    @RolesAllowed("ADMIN")
+    public Response getPreview(@QueryParam("name") String name) {
+        Movie movie = movieService.getPreview(name);
+
+        if (movie == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .build();
+        }
+
+        MovieDto movieDto = movieMapper.fromMovie_toMovieDto(movie);
+
+        return Response
+            .ok()
+            .entity(movieDto)
+            .build();
+    }
+
     @POST
+    @Transactional
     @RolesAllowed("ADMIN")
     public Response create(MovieCreateDto movieCreateDto) {
         Movie movie = movieMapper.fromMovieCreateDto_toMovie(movieCreateDto);
@@ -84,6 +106,7 @@ public class MovieResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response update(@PathParam("id") Long id, MovieUpdateDto movieUpdateDto) {
@@ -108,6 +131,7 @@ public class MovieResource {
     }
 
     @DELETE
+    @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {
@@ -120,26 +144,6 @@ public class MovieResource {
         }
 
         movieService.delete(movie);
-
-        MovieDto movieDto = movieMapper.fromMovie_toMovieDto(movie);
-
-        return Response
-            .ok()
-            .entity(movieDto)
-            .build();
-    }
-
-    @GET
-    @Path("/preview")
-    @RolesAllowed("ADMIN")
-    public Response getPreview(@QueryParam("name") String name) {
-        Movie movie = movieService.getPreview(name);
-
-        if (movie == null) {
-            return Response
-                .status(Response.Status.NOT_FOUND)
-                .build();
-        }
 
         MovieDto movieDto = movieMapper.fromMovie_toMovieDto(movie);
 

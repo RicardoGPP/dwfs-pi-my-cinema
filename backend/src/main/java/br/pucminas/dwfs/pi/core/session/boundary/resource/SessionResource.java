@@ -16,6 +16,7 @@ import br.pucminas.dwfs.pi.core.session.control.service.SessionService;
 import br.pucminas.dwfs.pi.core.session.entity.Session;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -96,6 +97,7 @@ public class SessionResource {
     }
 
     @POST
+    @Transactional
     @RolesAllowed("ADMIN")
     public Response create(SessionCreateDto sessionCreateDto) {
         Long movieId = sessionCreateDto.getMovieId();
@@ -138,6 +140,7 @@ public class SessionResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response update(@PathParam("id") Long id, SessionUpdateDto sessionUpdateDto) {
@@ -162,6 +165,7 @@ public class SessionResource {
     }
 
     @DELETE
+    @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {
