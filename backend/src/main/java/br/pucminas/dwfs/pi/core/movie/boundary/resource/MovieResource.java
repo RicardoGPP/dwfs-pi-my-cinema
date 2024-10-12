@@ -1,9 +1,8 @@
 package br.pucminas.dwfs.pi.core.movie.boundary.resource;
 
-import java.util.List;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import br.pucminas.dwfs.pi.core.comment.control.service.CommentService;
-import br.pucminas.dwfs.pi.core.comment.entity.Comment;
+import br.pucminas.dwfs.pi.core.comment.boundary.resource.CommentResource;
 import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import jakarta.annotation.security.RolesAllowed;
@@ -21,6 +20,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/movies")
+@Tag(name = "Movies", description = "Resource for interacting with movies.")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MovieResource {
@@ -29,7 +29,7 @@ public class MovieResource {
     MovieService movieService;
 
     @Inject
-    CommentService commentService;
+    CommentResource commentResource;
 
     @GET
     @RolesAllowed("ADMIN")
@@ -129,50 +129,12 @@ public class MovieResource {
     @GET
     @Path("/{id}/comments")
     public Response getComments(@PathParam("id") Long id) {
-        Movie movie = movieService.getById(id);
-
-        if (movie == null) {
-            return Response
-                .status(Response.Status.NOT_FOUND)
-                .build();
-        }
-
-        return Response
-            .ok()
-            .entity(commentService.getAllByMovie(movie))
-            .build();
+        return commentResource.getAllByMovie(id);
     }
 
     @GET
     @Path("/{id}/comments/summary")
     public Response getSummary(@PathParam("id") Long id) {
-        Movie movie = movieService.getById(id);
-
-        if (movie == null) {
-            return Response
-                .status(Response.Status.NOT_FOUND)
-                .build();
-        }
-
-        List<Comment> comments = commentService.getAllByMovie(movie);
-
-        if (comments.isEmpty()) {
-            return Response
-                .noContent()
-                .build();
-        }
-
-        String summary = commentService.getSummary(comments);
-
-        if (summary == null) {
-            return Response
-                .noContent()
-                .build();
-        }
-
-        return Response
-                .ok()
-                .entity(summary)
-                .build();
+        return commentResource.getSummary(id);
     }
 }
