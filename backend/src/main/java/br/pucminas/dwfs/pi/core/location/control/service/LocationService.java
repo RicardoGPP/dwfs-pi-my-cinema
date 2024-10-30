@@ -2,40 +2,52 @@ package br.pucminas.dwfs.pi.core.location.control.service;
 
 import java.util.List;
 
-import br.pucminas.dwfs.pi.core.location.control.repository.LocationRepository;
 import br.pucminas.dwfs.pi.core.location.entity.Location;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
-@ApplicationScoped
-public class LocationService {
+/**
+ * Service that provides methods for interacting with locations.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
+public interface LocationService {
 
-    @Inject
-    LocationRepository locationRepository;
+    /**
+     * Gets all locations.
+     * 
+     * @return A list containing all locations found.
+     */
+    public List<Location> getAllLocations();
 
-    public List<Location> getAll() {
-        return locationRepository.listAll();
-    }
+    /**
+     * Gets a location by its ID.
+     * 
+     * @param id The ID of the location.
+     * @return The location found or null otherwise.
+     */
+    public Location getLocationById(long id);
 
-    public Location getById(Long id) {
-        return locationRepository.findById(id);
-    }
+    /**
+     * Creates a location.
+     * 
+     * @param location The location to be created.
+     * @return The ID of the created location.
+     */
+    public long createLocation(Location location);
 
-    @Transactional
-    public Location create(Location location) {
-        locationRepository.persist(location);
-        return location;
-    }
+    /**
+     * Updates a location.
+     * 
+     * @param oldLocation The old location.
+     * @param newLocation The new location.
+     */
+    public void updateLocation(Location oldLocation, Location newLocation);
 
-    @Transactional
-    public void update(Location oldLocation, Location newLocation) {
-        oldLocation.setName(newLocation.getName());
-        oldLocation.setAddress(newLocation.getAddress());
-    }
-
-    @Transactional
-    public boolean delete(Long id) {
-        return locationRepository.deleteById(id);
-    }
+    /**
+     * Deletes a location.
+     * 
+     * @param location The location to be deleted.
+     */
+    public void deleteLocation(Location location);
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import br.pucminas.dwfs.pi.core.location.control.service.LocationService;
+import br.pucminas.dwfs.pi.core.location.control.service.LocationServiceDefault;
 import br.pucminas.dwfs.pi.core.location.entity.Location;
 import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
@@ -42,7 +42,7 @@ public class SessionResource {
     MovieService movieService;
 
     @Inject
-    LocationService locationService;
+    LocationServiceDefault locationService;
 
     @Inject
     SessionMapper sessionMapper;
@@ -112,7 +112,7 @@ public class SessionResource {
 
         Long locationId = sessionCreateDto.getLocationId();
 
-        Location location = locationService.getById(locationId);
+        Location location = locationService.getLocationById(locationId);
 
         if (location == null) {
             return Response
