@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * DTO for representing an user.
+ * DTO for representing an auth token.
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
@@ -20,9 +20,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class UserDto {
+public class AuthTokenDto {
 
-    private Long id;
-    private String name;
-    private String email;
+    private String token;
 }

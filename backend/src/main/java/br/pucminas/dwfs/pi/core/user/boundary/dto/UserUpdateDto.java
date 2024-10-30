@@ -7,6 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * DTO for updating an user.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
 @Getter
 @Setter
 @NoArgsConstructor

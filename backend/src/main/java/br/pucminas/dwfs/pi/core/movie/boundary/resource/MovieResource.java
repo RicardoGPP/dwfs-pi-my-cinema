@@ -36,7 +36,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 /**
- * Resource that provides endpoints for external communication.
+ * Resource that provides movie endpoints for external communication.
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0

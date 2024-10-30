@@ -2,76 +2,69 @@ package br.pucminas.dwfs.pi.core.user.control.service;
 
 import java.util.List;
 
-import br.pucminas.dwfs.pi.core.user.control.repository.UserRepository;
-import br.pucminas.dwfs.pi.core.user.control.util.PasswordUtil;
 import br.pucminas.dwfs.pi.core.user.entity.User;
-import br.pucminas.dwfs.pi.core.user.entity.UserRole;
-import br.pucminas.dwfs.pi.infra.exception.AppException;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
-@ApplicationScoped
-public class UserService {
+/**
+ * Service that provides methods for interacting with users.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
+public interface UserService {
 
-    @Inject
-    UserRepository userRepository;
+    /**
+     * Gets all users.
+     * 
+     * @return A list containing all users.
+     */
+    public List<User> getAllUsers();
 
-    public List<User> getAll() {
-        return userRepository.listAll();
-    }
+    /**
+     * Gets an user by its ID.
+     * 
+     * @param id The ID of the user.
+     * @return The user found or null otherwise.
+     */
+    public User getUserById(long id);
 
-    public User getById(Long id) {
-        return userRepository.findById(id);
-    }
+    /**
+     * Gets an user by its e-mail.
+     * 
+     * @param email The e-mail of the user.
+     * @return The user found or null otherwise.
+     */
+    public User getUserByEmail(String email);
 
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+    /**
+     * Creates an user.
+     * 
+     * @param user The user to be created.
+     * @return The ID of the created user.
+     */
+    public long createUser(User user);
 
-    @Transactional
-    public User create(User user) {
-        String email = user.getEmail();
+    /**
+     * Updates an user.
+     * 
+     * @param oldUser The old user.
+     * @param newUser The new user.
+     */
+    public void updateUser(User oldUser, User newUser);
 
-        User existingUser = getByEmail(email);
+    /**
+     * Deletes an user.
+     * 
+     * @param user The user to be deleted.
+     */
+    public void deleteUser(User user);
 
-        if (existingUser != null) {
-            throw new AppException("E-mail '" + email + "' is not available.");
-        }
-
-        String encryptedPassword = PasswordUtil.encrypt(user.getPassword());
-
-        user.setPassword(encryptedPassword);
-
-        userRepository.persist(user);
-
-        return user;
-    }
-
-    @Transactional
-    public void update(User oldUser, User newUser) {
-        if (isAdmin(oldUser)) {
-            throw new AppException("Cannot update admin user");
-        }
-
-        oldUser.setName(newUser.getName());
-
-        String password = newUser.getPassword();
-
-        if (password != null) {
-            oldUser.setPassword(PasswordUtil.encrypt(password));
-        }
-    }
-
-    @Transactional
-    public boolean delete(User user) {
-        if (isAdmin(user)) {
-            throw new AppException("Cannot delete admin user");
-        }
-        return userRepository.deleteById(user.getId());
-    }
-
-    private boolean isAdmin(User user) {
-        return user.getRole().equals(UserRole.ADMIN);
-    }
+    /**
+     * Performs the login of an user.
+     * 
+     * @param email The e-mail of the user.
+     * @param password The password of the user.
+     * @return The auth token.
+     */
+    public String doUserLogin(String email, String password);
 }

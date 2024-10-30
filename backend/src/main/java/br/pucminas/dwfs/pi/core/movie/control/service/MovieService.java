@@ -6,7 +6,7 @@ import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import br.pucminas.dwfs.pi.core.movie.entity.MovieOption;
 
 /**
- * Service that provide methods for interacting with movies.
+ * Service that provides methods for interacting with movies.
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0

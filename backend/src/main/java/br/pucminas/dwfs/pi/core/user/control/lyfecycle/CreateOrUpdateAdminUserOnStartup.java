@@ -13,6 +13,13 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.jbosslog.JBossLog;
 
+/**
+ * Application startup hook for creating the admin user into the database.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
 @JBossLog
 @ApplicationScoped
 public class CreateOrUpdateAdminUserOnStartup {

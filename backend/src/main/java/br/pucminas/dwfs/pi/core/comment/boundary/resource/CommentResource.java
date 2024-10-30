@@ -114,7 +114,7 @@ public class CommentResource {
 
         String email = jwt.getClaim("upn");
 
-        User user = userService.getByEmail(email);
+        User user = userService.getUserByEmail(email);
 
         if (user == null) {
             return Response
