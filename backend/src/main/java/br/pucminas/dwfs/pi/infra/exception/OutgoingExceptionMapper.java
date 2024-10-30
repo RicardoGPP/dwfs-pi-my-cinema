@@ -5,6 +5,13 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import lombok.extern.jbosslog.JBossLog;
 
+/**
+ * Provider that maps an exception into a HTTP response.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
 @JBossLog
 @Provider
 public class OutgoingExceptionMapper implements ExceptionMapper<Throwable> {
@@ -19,11 +26,13 @@ public class OutgoingExceptionMapper implements ExceptionMapper<Throwable> {
             httpStatus = ((AppException) exception).getHttpStatus();
         }
 
-        String message = exception.getMessage();
+        AppError error = new AppError();
+
+        error.setMessage(exception.getMessage());
 
         return Response
             .status(httpStatus)
-            .entity(message)
+            .entity(error)
             .build();
     }
 }

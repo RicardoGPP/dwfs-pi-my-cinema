@@ -56,7 +56,7 @@ public class CommentResource {
         if (movieId == null) {
             comments = commentService.getAll();
         } else {
-            Movie movie = movieService.getById(movieId);
+            Movie movie = movieService.getMovieById(movieId);
 
             if (movie != null) {
                 comments = commentService.getAllByMovie(movie);
@@ -80,7 +80,7 @@ public class CommentResource {
     @GET
     @Path("/summary")
     public Response getSummary(@QueryParam("movie-id") Long movieId) {
-        Movie movie = movieService.getById(movieId);
+        Movie movie = movieService.getMovieById(movieId);
 
         if (movie == null) {
             return Response
@@ -104,7 +104,7 @@ public class CommentResource {
     public Response create(CommentCreateDto commentCreateDto) {
         Long movieId = commentCreateDto.getMovieId();
 
-        Movie movie = movieService.getById(movieId);
+        Movie movie = movieService.getMovieById(movieId);
 
         if (movie == null) {
             return Response

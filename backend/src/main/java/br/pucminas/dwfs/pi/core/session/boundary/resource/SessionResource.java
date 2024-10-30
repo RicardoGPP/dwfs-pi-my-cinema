@@ -55,7 +55,7 @@ public class SessionResource {
         if (movieId == null) {
             sessions = sessionService.getAll();
         } else {
-            Movie movie = movieService.getById(movieId);
+            Movie movie = movieService.getMovieById(movieId);
 
             if (movie != null) {
                 sessions = sessionService.getAllByMovie(movie);
@@ -102,7 +102,7 @@ public class SessionResource {
     public Response create(SessionCreateDto sessionCreateDto) {
         Long movieId = sessionCreateDto.getMovieId();
 
-        Movie movie = movieService.getById(movieId);
+        Movie movie = movieService.getMovieById(movieId);
 
         if (movie == null) {
             return Response

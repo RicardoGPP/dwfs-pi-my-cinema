@@ -2,69 +2,69 @@ package br.pucminas.dwfs.pi.core.movie.control.service;
 
 import java.util.List;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import br.pucminas.dwfs.pi.core.movie.boundary.restclient.TmdbRestClient;
-import br.pucminas.dwfs.pi.core.movie.control.repository.MovieRepository;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
+import br.pucminas.dwfs.pi.core.movie.entity.MovieOption;
 
-@ApplicationScoped
-public class MovieService {
+/**
+ * Service that provide methods for interacting with movies.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
+public interface MovieService {
 
-    @ConfigProperty(name = "tmdb.api.key")
-    String apiKey;
+    /**
+     * Gets all movies.
+     * 
+     * @return A list containing all movies found.
+     */
+    List<Movie> getAllMovies();
 
-    @ConfigProperty(name = "tmdb.language")
-    String language;
+    /**
+     * Gets a movie by its ID.
+     * 
+     * @param id The ID of the movie.
+     * @return The movie found or null otherwise.
+     */
+    Movie getMovieById(long id);
 
-    @Inject
-    MovieRepository movieRepository;
+    /**
+     * Gets all movie options by a name.
+     * 
+     * @param name The name of the movie.
+     * @return A list containing all movie options found.
+     */
+    List<MovieOption> getMovieOptionsByName(String name);
 
-    @Inject
-    @RestClient
-    TmdbRestClient tmdbRestClient;
+    /**
+     * Gets a movie by a movie option ID.
+     * 
+     * @param movieOptionId The ID of the movie option.
+     * @return The movie found or null otherwise.
+     */
+    Movie getMovieByMovieOptionId(long movieOptionId);
 
-    public List<Movie> getAll() {
-        return movieRepository.listAll();
-    }
+    /**
+     * Creates a movie.
+     * 
+     * @param movie The movie to be created.
+     * @return The ID of the created movie.
+     */
+    long createMovie(Movie movie);
 
-    public Movie getById(Long id) {
-        return movieRepository.findById(id);
-    }
+    /**
+     * Updates a movie.
+     * 
+     * @param oldMovie The old movie.
+     * @param newMovie The new movie.
+     */
+    void updateMovie(Movie oldMovie, Movie newMovie);
 
-    public Movie getPreview(String name) {
-        //TODO: Implement real movie preview retrieval.
-        String response = tmdbRestClient.getByName(name, apiKey, language);
-        System.out.println(response);
-        return null;
-    }
-
-    @Transactional
-    public Movie create(Movie movie) {
-        movieRepository.persist(movie);
-        return movie;
-    }
-
-    @Transactional
-    public void update(Movie oldMovie, Movie newMovie) {
-        oldMovie.setTitle(newMovie.getTitle());
-        oldMovie.setOverview(newMovie.getOverview());
-        oldMovie.setTagline(newMovie.getTagline());
-        oldMovie.setLanguage(newMovie.getLanguage());
-        oldMovie.setGenres(newMovie.getGenres());
-        oldMovie.setReleaseDate(newMovie.getReleaseDate());
-        oldMovie.setPosterPath(newMovie.getPosterPath());
-        oldMovie.setTrailerUrl(newMovie.getTrailerUrl());
-        oldMovie.setRuntime(newMovie.getRuntime());
-        oldMovie.setCast(newMovie.getCast());
-    }
-
-    @Transactional
-    public void delete(Movie movie) {
-        movieRepository.delete(movie);
-    }
+    /**
+     * Deletes a movie.
+     * 
+     * @param movie The movie to be deleted.
+     */
+    void deleteMovie(Movie movie);
 }

@@ -1,6 +1,4 @@
-package br.pucminas.dwfs.pi.core.movie.boundary.dto;
-
-import java.util.List;
+package br.pucminas.dwfs.pi.core.movie.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -10,7 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * DTO for representing a movie.
+ * Represents a movie option.
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
@@ -22,15 +20,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class MovieDto {
+public class MovieOption {
 
     private Long id;
     private String title;
-    private String overview;
-    private String tagline;
-    private Integer runtime;
-    private List<String> genres;
-    private String releaseDate;
-    private String posterPath;
-    private String backdropPath;
 }

@@ -18,14 +18,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
-@Table(name = "movies")
+/**
+ * Represents a movie. 
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
+@Entity
+@Table(name = "movies")
 public class Movie {
 
     @Id
@@ -41,12 +48,12 @@ public class Movie {
     @Column
     private String tagline;
 
-    @Column(nullable = false)
-    private String language;
+    @Column
+    private Integer runtime;
 
     @ElementCollection
-    @CollectionTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "genre")
+    @CollectionTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie_id"))
     private List<String> genres;
 
     @Column(name = "release_date")
@@ -55,14 +62,6 @@ public class Movie {
     @Column(name = "poster_path")
     private String posterPath;
 
-    @Column(name = "trailer_url")
-    private String trailerUrl;
-
-    @Column
-    private Integer runtime;
-
-    @ElementCollection
-    @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
-    @Column(name = "cast_member")
-    private List<String> cast;
+    @Column(name = "backdrop_path")
+    private String backdropPath;
 }

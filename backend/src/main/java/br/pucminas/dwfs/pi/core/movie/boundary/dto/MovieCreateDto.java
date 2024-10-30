@@ -9,6 +9,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * DTO for creating a movie.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 30/10/2024
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,11 +27,9 @@ public class MovieCreateDto {
     private String title;
     private String overview;
     private String tagline;
-    private String language;
+    private Integer runtime;
     private List<String> genres;
     private String releaseDate;
     private String posterPath;
-    private String trailerUrl;
-    private Integer runtime;
-    private List<String> cast;
+    private String backdropPath;
 }

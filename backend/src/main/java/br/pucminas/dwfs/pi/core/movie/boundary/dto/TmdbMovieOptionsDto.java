@@ -10,7 +10,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * DTO for representing a movie.
+ * DTO for representing the response received from TMDB API when a
+ * movies-by-name request is made.
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
@@ -22,15 +23,19 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class MovieDto {
+public class TmdbMovieOptionsDto {
 
-    private Long id;
-    private String title;
-    private String overview;
-    private String tagline;
-    private Integer runtime;
-    private List<String> genres;
-    private String releaseDate;
-    private String posterPath;
-    private String backdropPath;
+    private List<TmdbMovieOptionDto> results;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode
+    public static class TmdbMovieOptionDto {
+
+        private Long id;
+        private String title;
+    }
 }
