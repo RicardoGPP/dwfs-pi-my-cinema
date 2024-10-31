@@ -35,7 +35,12 @@ api.interceptors.response.use(
             //TODO: go to "unauthorized" page.
         }
 
-        return Promise.reject(error);
+        const simplifiedError = {
+            status: error.response.status,
+            message: error.response.data.message
+        };
+
+        return Promise.reject(simplifiedError);
     }
 );
 

@@ -66,7 +66,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import locationService from '@/services/location-service';
-import LocationDialog from '@/components/LocationDialog.vue';
+import LocationDialog from '@/components/location-dialog/LocationDialog.vue';
 
 export default {
     components: {

@@ -36,7 +36,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import movieService from '@/services/movie-service';
-import MovieDialog from '@/components/MovieDialog.vue';
+import MovieDialog from '@/components/movie-dialog/MovieDialog.vue';
 
 export default {
     components: {
