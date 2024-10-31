@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * DTO for creating a comment.
+ * DTO for representing a comments' summary.
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
@@ -20,8 +20,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class CommentCreateDto {
+public class SummaryDto {
 
-    private Long movieId;
-    private String text;
+    private String summary;
 }

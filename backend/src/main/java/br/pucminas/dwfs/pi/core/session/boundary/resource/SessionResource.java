@@ -76,6 +76,16 @@ public class SessionResource {
         )
     )
     @APIResponse(
+        responseCode = "404",
+        description = "The movie could not be found.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
         responseCode = "500",
         description = "An unexpected error occurred.",
         content = @Content(

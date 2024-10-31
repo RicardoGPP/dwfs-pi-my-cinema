@@ -1,5 +1,7 @@
 package br.pucminas.dwfs.pi.core.comment.boundary.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,7 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * DTO for representing a comment.
+ * DTO for requesting something to Open AI API. 
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
@@ -20,24 +22,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class CommentDto {
+public class OpenAiRequestDto {
 
-    private Long id;
-    private MovieDto movie;
-    private UserDto user;
-    private String text;
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @ToString
-    @EqualsAndHashCode
-    public static class MovieDto {
-
-        private Long id;
-        private String title;
-    }
+    private String model;
+    private List<OpenAiRequestMessageDto> messages;
+    private Double temperature;
 
     @Getter
     @Setter
@@ -45,9 +34,9 @@ public class CommentDto {
     @AllArgsConstructor
     @ToString
     @EqualsAndHashCode
-    public static class UserDto {
+    public static class OpenAiRequestMessageDto {
 
-        private Long id;
-        private String name;
+        private String role;
+        private String content;
     }
 }

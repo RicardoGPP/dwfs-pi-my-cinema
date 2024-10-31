@@ -1,5 +1,7 @@
 package br.pucminas.dwfs.pi.core.comment.boundary.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,7 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * DTO for representing a comment.
+ * DTO for representing a response received from Open AI API.
  * 
  * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
@@ -20,12 +22,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class CommentDto {
+public class OpenAiResponseDto {
 
-    private Long id;
-    private MovieDto movie;
-    private UserDto user;
-    private String text;
+    private List<OpenAiResponseChoiceDto> choices;
 
     @Getter
     @Setter
@@ -33,10 +32,9 @@ public class CommentDto {
     @AllArgsConstructor
     @ToString
     @EqualsAndHashCode
-    public static class MovieDto {
+    public static class OpenAiResponseChoiceDto {
 
-        private Long id;
-        private String title;
+        private OpenAiResponseMessageDto message;
     }
 
     @Getter
@@ -45,9 +43,8 @@ public class CommentDto {
     @AllArgsConstructor
     @ToString
     @EqualsAndHashCode
-    public static class UserDto {
+    public static class OpenAiResponseMessageDto {
 
-        private Long id;
-        private String name;
+        private String content;
     }
 }
