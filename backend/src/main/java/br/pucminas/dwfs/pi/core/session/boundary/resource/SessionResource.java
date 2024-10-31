@@ -2,9 +2,16 @@ package br.pucminas.dwfs.pi.core.session.boundary.resource;
 
 import java.util.List;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import br.pucminas.dwfs.pi.core.location.control.service.LocationServiceDefault;
+import br.pucminas.dwfs.pi.core.location.control.service.LocationService;
 import br.pucminas.dwfs.pi.core.location.entity.Location;
 import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
@@ -14,6 +21,7 @@ import br.pucminas.dwfs.pi.core.session.boundary.dto.SessionUpdateDto;
 import br.pucminas.dwfs.pi.core.session.control.mapper.SessionMapper;
 import br.pucminas.dwfs.pi.core.session.control.service.SessionService;
 import br.pucminas.dwfs.pi.core.session.entity.Session;
+import br.pucminas.dwfs.pi.infra.exception.AppError;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -30,9 +38,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("/sessions")
-@Tag(name = "Sessions", description = "Resource for interacting with sessions.")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Sessions", description = "Resource for interacting with sessions.")
 public class SessionResource {
 
     @Inject
@@ -42,30 +50,60 @@ public class SessionResource {
     MovieService movieService;
 
     @Inject
-    LocationServiceDefault locationService;
+    LocationService locationService;
 
     @Inject
     SessionMapper sessionMapper;
 
     @GET
     @RolesAllowed("ADMIN")
-    public Response getAll(@QueryParam("movie-id") Long movieId) {
-        List<Session> sessions = null;
+    @Operation(summary = "Gets all sessions.")
+    @APIResponse(
+        responseCode = "200",
+        description = "The sessions have been successfully returned.",
+        content = @Content(
+            schema = @Schema(
+                implementation = SessionDto.class,
+                type = SchemaType.ARRAY
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "500",
+        description = "An unexpected error occurred.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    public Response getAllSessions(
+        @QueryParam("movie-id")
+        @Parameter(
+            description = "The ID of the movie.",
+            required = false
+        )
+        Long movieId) {
+        Movie movie = null;
 
-        if (movieId == null) {
-            sessions = sessionService.getAll();
-        } else {
-            Movie movie = movieService.getMovieById(movieId);
-
-            if (movie != null) {
-                sessions = sessionService.getAllByMovie(movie);
-            }
+        if (movieId != null) {
+            movie = movieService.getMovieById(movieId);
         }
 
-        if (sessions == null) {
+        if (movieId != null && movie == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No movie could be found with ID " + movieId))
                 .build();
+        }
+
+        List<Session> sessions;
+
+        if (movie == null) {
+            sessions = sessionService.getAllSessions();
+        } else {
+            sessions = sessionService.getAllSessionsByMovie(movie);
         }
 
         List<SessionDto> sessionsDto = sessionMapper.fromSessions_toSessionsDto(sessions);
@@ -79,12 +117,50 @@ public class SessionResource {
     @GET
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Response getById(@PathParam("id") Long id) {
-        Session session = sessionService.getById(id);
+    @Operation(summary = "Gets a session by its ID.")
+    @APIResponse(
+        responseCode = "200",
+        description = "The session has been successfully returned.",
+        content = @Content(
+            schema = @Schema(
+                implementation = SessionDto.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "404",
+        description = "The session could not be found.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "500",
+        description = "An unexpected error occurred.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    public Response getSessionById(
+        @PathParam("id")
+        @Parameter(
+            description = "The ID of the session.",
+            required = true
+        )
+        long id) {
+        Session session = sessionService.getSessionById(id);
 
         if (session == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No session could be found with ID " + id))
                 .build();
         }
 
@@ -99,24 +175,62 @@ public class SessionResource {
     @POST
     @Transactional
     @RolesAllowed("ADMIN")
-    public Response create(SessionCreateDto sessionCreateDto) {
-        Long movieId = sessionCreateDto.getMovieId();
+    @Operation(summary = "Creates a session.")
+    @APIResponse(
+        responseCode = "201",
+        description = "The session has been successfully created.",
+        content = @Content(
+            schema = @Schema(
+                implementation = SessionDto.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "404",
+        description = "The movie/location could not be found.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "500",
+        description = "An unexpected error occurred.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    public Response createSession(
+        @RequestBody(
+            description = "The data for creating a new session.",
+            required = true
+        )
+        SessionCreateDto sessionCreateDto) {
+        long movieId = sessionCreateDto.getMovieId();
 
         Movie movie = movieService.getMovieById(movieId);
 
         if (movie == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No movie could be found with ID " + movieId))
                 .build();
         }
 
-        Long locationId = sessionCreateDto.getLocationId();
+        long locationId = sessionCreateDto.getLocationId();
 
         Location location = locationService.getLocationById(locationId);
 
         if (location == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No location could be found with ID " + locationId))
                 .build();
         }
 
@@ -129,9 +243,11 @@ public class SessionResource {
         session.setThreeD(sessionCreateDto.getThreeD());
         session.setSubtitled(sessionCreateDto.getSubtitled());
 
-        session = sessionService.create(session);
+        long id = sessionService.createSession(session);
 
-        SessionDto sessionDto = sessionMapper.fromSession_toSessionDto(session);
+        Session newSession = sessionService.getSessionById(id);
+
+        SessionDto sessionDto = sessionMapper.fromSession_toSessionDto(newSession);
 
         return Response
             .status(Response.Status.CREATED)
@@ -143,18 +259,62 @@ public class SessionResource {
     @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Response update(@PathParam("id") Long id, SessionUpdateDto sessionUpdateDto) {
-        Session oldSession = sessionService.getById(id);
+    @Operation(summary = "Updates a session.")
+    @APIResponse(
+        responseCode = "200",
+        description = "The session has been successfully updated.",
+        content = @Content(
+            schema = @Schema(
+                implementation = SessionDto.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "404",
+        description = "The session could not be found.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "500",
+        description = "An unexpected error occurred.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    public Response updateSession(
+        @PathParam("id")
+        @Parameter(
+            description = "The ID of the session.",
+            required = true
+        )
+        long id,
+
+        @RequestBody(
+            description = "The data for updating the session.",
+            required = true
+        )
+        SessionUpdateDto sessionUpdateDto) {
+        Session oldSession = sessionService.getSessionById(id);
 
         if (oldSession == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No session could be found with ID " + id))
                 .build();
         }
 
         Session newSession = sessionMapper.fromSessionUpdateDto_toSession(sessionUpdateDto);
 
-        sessionService.update(oldSession, newSession);
+        sessionService.updateSession(oldSession, newSession);
 
         SessionDto sessionDto = sessionMapper.fromSession_toSessionDto(newSession);
 
@@ -168,16 +328,54 @@ public class SessionResource {
     @Transactional
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Response delete(@PathParam("id") Long id) {
-        Session session = sessionService.getById(id);
+    @Operation(summary = "Deletes a session.")
+    @APIResponse(
+        responseCode = "200",
+        description = "The session has been successfully deleted.",
+        content = @Content(
+            schema = @Schema(
+                implementation = SessionDto.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "404",
+        description = "The session could not be found.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    @APIResponse(
+        responseCode = "500",
+        description = "An unexpected error occurred.",
+        content = @Content(
+            schema = @Schema(
+                implementation = AppError.class,
+                type = SchemaType.OBJECT
+            )
+        )
+    )
+    public Response deleteSession(
+        @PathParam("id")
+        @Parameter(
+            description = "The ID of the session.",
+            required = true
+        )
+        long id) {
+        Session session = sessionService.getSessionById(id);
 
         if (session == null) {
             return Response
                 .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No session could be found with ID " + id))
                 .build();
         }
 
-        sessionService.delete(session);
+        sessionService.deleteSession(session);
 
         SessionDto sessionDto = sessionMapper.fromSession_toSessionDto(session);
 
