@@ -13,9 +13,10 @@
             :retry="load"
         />
         <div v-else class="content">
-            <CommentSummary
+            <InfoPanel
                 v-if="summary"
-                :summary="summary"
+                title="Resumo dos comentários"
+                :message="summary"
             />
             <CommentList
                 :comments="comments"
@@ -30,7 +31,7 @@
 <script>
 import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
 import ErrorPanel from '@/components/error-panel/ErrorPanel.vue';
-import CommentSummary from './CommentPanelCommentSummary.vue';
+import InfoPanel from '@/components/info-panel/InfoPanel.vue';
 import CommentList from './CommentPanelCommentList.vue';
 import CommentInput from './CommentPanelCommentInput.vue';
 import CommentService from '@/services/comment-service';
@@ -40,7 +41,7 @@ export default {
     components: {
         LoadingPanel,
         ErrorPanel,
-        CommentSummary,
+        InfoPanel,
         CommentList,
         CommentInput
     },
@@ -108,10 +109,10 @@ export default {
 .content {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 hr {
-    margin-bottom: 15px;
+    margin-bottom: 30px;
 }
 </style>

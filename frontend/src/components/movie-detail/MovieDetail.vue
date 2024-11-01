@@ -21,7 +21,7 @@
                     Lançamento:
                 </h3>
                 <span>
-                    {{ movie.releaseDate }}
+                    {{ formattedReleaseDate }}
                 </span>
             </div>
             <div class="row">
@@ -64,6 +64,15 @@ export default {
     computed: {
         path() {
             return `https://image.tmdb.org/t/p/w500/${this.movie.posterPath}`;
+        },
+        formattedReleaseDate() {
+            const parts = this.movie.releaseDate.split('-');
+
+            const day = parts[2];
+            const month = parts[1];
+            const year = parts[0];
+
+            return `${day}/${month}/${year}`;
         },
         oneRowGenres() {
             let oneRowGenres = '';
@@ -120,7 +129,6 @@ export default {
     gap: 5px;
 
     &:first-child {
-        min-height: 200px;
         gap: 25px;
     }
 }

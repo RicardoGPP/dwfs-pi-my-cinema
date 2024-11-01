@@ -14,6 +14,9 @@
                 <MovieDetail
                     :movie="movie"
                 />
+                <SessionPanel
+                    :movieId="id"
+                />
                 <CommentPanel
                     :movieId="id"
                 />
@@ -25,6 +28,7 @@
 <script>
 import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
 import MovieDetail from '@/components/movie-detail/MovieDetail.vue';
+import SessionPanel from '@/components/session-panel/SessionPanel.vue';
 import CommentPanel from '@/components/comment-panel/CommentPanel.vue';
 import MovieService from '@/services/movie-service';
 
@@ -33,6 +37,7 @@ export default {
     components: {
         LoadingPanel,
         MovieDetail,
+        SessionPanel,
         CommentPanel
     },
     props: {

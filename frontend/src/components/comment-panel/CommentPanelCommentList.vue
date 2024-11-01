@@ -1,13 +1,14 @@
 <template>
     <div class="comment-panel-comment-list">
-        <span v-if="comments.length === 0">
+        <div v-if="comments.length === 0" class="message">
             Este filme ainda não possui comentários. Seja o primeiro a comentar!
-        </span>
-        <div v-else>
+        </div>
+        <div v-else class="content">
             <CommentItem
                 v-for="(comment, index) in comments"
                 :key="index"
                 :comment="comment"
+                :odd="index % 2 === 0"
             />
         </div>
     </div>
@@ -32,15 +33,17 @@ export default {
 
 <style lang="scss" scoped>
 .comment-panel-comment-list {
-
-    padding: 20px;
-    border: 1px solid gray;
+    border: 1px solid #4f4f4f;
     border-radius: 5px;
+    overflow: hidden;
+}
 
-    & > div {
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
-    }
+.message {
+    margin: 20px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
 }
 </style>

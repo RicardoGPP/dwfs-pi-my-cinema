@@ -1,7 +1,7 @@
 <template>
-    <div class="comment-panel-comment-list-comment-item">
+    <div class="comment-panel-comment-list-comment-item" :odd="odd">
         <h4>
-            {{ comment.user.name }} disse:
+            {{ comment.user.name }}:
         </h4>
         <span>
             {{ comment.text }}
@@ -16,6 +16,10 @@ export default {
         comment: {
             type: Object,
             required: true
+        },
+        odd: {
+            type: Boolean,
+            required: true
         }
     }
 }
@@ -26,9 +30,15 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    padding: 20px;
+
+    &[odd = true] {
+        background-color: #181818;
+    }
 }
 
 h4 {
     margin: 0;
+    color: #00FF7F;
 }
 </style>

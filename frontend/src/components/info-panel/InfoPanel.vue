@@ -1,19 +1,23 @@
 <template>
-    <div class="comment-panel-comment-summary">
+    <div class="info-panel">
         <h2>
-            Resumo dos comentários
+            {{ title }}
         </h2>
         <span>
-            {{ summary }}
+            {{ message }}
         </span>
     </div>
 </template>
 
 <script>
 export default {
-    name: 'CommentPanelCommentSummary',
+    name: 'InfoPanel',
     props: {
-        summary: {
+        title: {
+            type: String,
+            required: true
+        },
+        message: {
             type: String,
             required: true
         }
@@ -22,14 +26,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.comment-panel-comment-summary {
+.info-panel {
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding: 15px;
-    border: 1px solid #FFD700;
-    border-left: 5px solid #FFD700;
-    background: linear-gradient(to bottom, #fff6c1, #ffee8d);
+    border: 1px solid #353535;
+    border-left: 5px solid #00FF7F;
+    background: linear-gradient(to bottom, #353535, #222222);
+    color: white !important;
     border-radius: 5px;
     color: #000000;
 }
