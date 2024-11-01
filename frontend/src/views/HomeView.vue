@@ -63,6 +63,11 @@ export default {
     flex-direction: column;
     align-items: center;
     gap: 30px;
+    padding: 20px;
+}
+
+.error {
+    color: #ff0000;
 }
 
 h1 {
@@ -73,9 +78,5 @@ h1 {
     h1 {
         font-size: 35px;
     }
-}
-
-.error {
-    color: #ff0000;
 }
 </style>

@@ -82,12 +82,6 @@ export default {
     bottom: 0;
 }
 
-@media (max-width: 1280px) {
-    .footer {
-        display: block;
-    }
-}
-
 .footer-overlay {
     position: absolute;
     width: 100%;
@@ -107,5 +101,11 @@ export default {
     padding: 10px;
     color: #ffffff;
     font-size: 18px;
+}
+
+@media (max-width: 1280px) {
+    .footer {
+        display: block;
+    }
 }
 </style>

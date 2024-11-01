@@ -37,6 +37,5 @@ header {
     position: absolute;
     width: 100%;
     margin-top: 80px;
-    padding: 20px;
 }
 </style>
