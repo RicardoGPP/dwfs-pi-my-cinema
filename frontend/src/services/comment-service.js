@@ -15,7 +15,7 @@ const commentService = {
         const response = await api.get(`${RESOURCE}/summary`, {
             params: { 'movie-id': movieId }
         });
-        return response.data;
+        return response.data.summary;
     },
 
     async create(comment) {

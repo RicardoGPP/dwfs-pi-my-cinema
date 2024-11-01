@@ -14,6 +14,9 @@
                 <MovieDetail
                     :movie="movie"
                 />
+                <CommentPanel
+                    :movieId="id"
+                />
             </div>
         </div>
     </div>
@@ -22,13 +25,15 @@
 <script>
 import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
 import MovieDetail from '@/components/movie-detail/MovieDetail.vue';
+import CommentPanel from '@/components/comment-panel/CommentPanel.vue';
 import MovieService from '@/services/movie-service';
 
 export default {
     name: 'MovieDetailView',
     components: {
         LoadingPanel,
-        MovieDetail
+        MovieDetail,
+        CommentPanel
     },
     props: {
         id: {
@@ -119,6 +124,9 @@ export default {
 
 .content {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
     width: 1024px;
     padding: 20px;
     margin-top: 80px;
