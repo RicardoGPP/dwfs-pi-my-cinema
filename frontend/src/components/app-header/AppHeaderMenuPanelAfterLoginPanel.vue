@@ -7,6 +7,7 @@
         <Menu
             ref="menu"
             :model="menuItems"
+            bazeZIndex="999"
             popup
         />
     </div>

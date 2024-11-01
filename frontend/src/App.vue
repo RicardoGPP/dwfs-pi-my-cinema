@@ -28,7 +28,15 @@ html, body {
     padding: 0;
 }
 
+header {
+    position: fixed;
+    z-index: 99;
+}
+
 .global-content {
+    position: absolute;
+    width: 100%;
+    margin-top: 80px;
     padding: 20px;
 }
 </style>

@@ -4,8 +4,12 @@ const RESOURCE = '/movies';
 
 const movieService = {
 
-    async getAll() {
-        const response = await api.get(RESOURCE);
+    async getAll(nowShowing = false) {
+        const response = await api.get(RESOURCE, {
+            params: {
+                'now-showing': nowShowing
+            }
+        });
         return response.data;
     },
 

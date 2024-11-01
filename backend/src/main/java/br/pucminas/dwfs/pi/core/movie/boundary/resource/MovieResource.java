@@ -25,6 +25,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -55,7 +56,6 @@ public class MovieResource {
     MovieMapper movieMapper;
 
     @GET
-    @RolesAllowed("ADMIN")
     @Operation(summary = "Gets all movies.")
     @APIResponse(
         responseCode = "200",
@@ -77,8 +77,20 @@ public class MovieResource {
             )
         )
     )
-    public Response getAllMovies() {
-        List<Movie> movies = movieService.getAllMovies();
+    public Response getAllMovies(
+        @QueryParam("now-showing")
+        @Parameter(
+            description = "Indicates if must return only movies that are now showing.",
+            required = false
+        )
+        boolean nowShowing) {
+        List<Movie> movies;
+
+        if (nowShowing) {
+            movies = movieService.getAllNowShowingMovies();
+        } else {
+            movies = movieService.getAllMovies();
+        }
 
         List<MovieDto> moviesDto = movieMapper.fromMovies_toMoviesDto(movies);
 

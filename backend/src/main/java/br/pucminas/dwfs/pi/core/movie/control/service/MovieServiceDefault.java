@@ -50,6 +50,12 @@ public class MovieServiceDefault implements MovieService {
     }
 
     @Override
+    public List<Movie> getAllNowShowingMovies() {
+        //TODO: implement real now-showing movies.
+        return getAllMovies();
+    }
+
+    @Override
     public Movie getMovieById(long id) {
         return movieRepository.findById(id);
     }

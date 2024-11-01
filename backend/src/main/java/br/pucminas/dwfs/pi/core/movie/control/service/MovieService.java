@@ -22,6 +22,13 @@ public interface MovieService {
     List<Movie> getAllMovies();
 
     /**
+     * Gets all movies that are now showing.
+     * 
+     * @return A list containing all movies found.
+     */
+    List<Movie> getAllNowShowingMovies();
+
+    /**
      * Gets a movie by its ID.
      * 
      * @param id The ID of the movie.

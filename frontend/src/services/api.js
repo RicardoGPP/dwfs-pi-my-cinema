@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:9080',
+    baseURL: process.env.VUE_APP_API_URL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
@@ -35,9 +35,15 @@ api.interceptors.response.use(
             //TODO: go to "unauthorized" page.
         }
 
+        let message = error.response.data.message;
+
+        if (!message) {
+            message = error.message;
+        }
+
         const simplifiedError = {
             status: error.response.status,
-            message: error.response.data.message
+            message
         };
 
         return Promise.reject(simplifiedError);
