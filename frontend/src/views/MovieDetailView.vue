@@ -1,33 +1,29 @@
 <template>
-    <div class="movie-detail-view">
-        <LoadingPanel
-            v-if="loading"
-        />
-        <span v-else-if="error" class="error">
-            {{ error }}
-        </span>
-        <div v-else class="container">
-            <div class="backdrop">
-                <img :src="path"/>
+    <div class="movie-panel-view">
+        <LifecyclePanel :callback="load">
+            <div class="container">
+                <div class="backdrop">
+                    <img :src="movie.backdropPath"/>
+                </div>
+                <div class="content">
+                    <MoviePanel
+                        :movie="movie"
+                    />
+                    <SessionPanel
+                        :movie="movie"
+                    />
+                    <CommentPanel
+                        :movie="movie"
+                    />
+                </div>
             </div>
-            <div class="content">
-                <MovieDetail
-                    :movie="movie"
-                />
-                <SessionPanel
-                    :movieId="id"
-                />
-                <CommentPanel
-                    :movieId="id"
-                />
-            </div>
-        </div>
+        </LifecyclePanel>
     </div>
 </template>
 
 <script>
-import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
-import MovieDetail from '@/components/movie-detail/MovieDetail.vue';
+import LifecyclePanel from '@/components/lifecycle-panel/LifecyclePanel.vue';
+import MoviePanel from '@/components/movie-panel/MoviePanel.vue';
 import SessionPanel from '@/components/session-panel/SessionPanel.vue';
 import CommentPanel from '@/components/comment-panel/CommentPanel.vue';
 import MovieService from '@/services/movie-service';
@@ -35,8 +31,8 @@ import MovieService from '@/services/movie-service';
 export default {
     name: 'MovieDetailView',
     components: {
-        LoadingPanel,
-        MovieDetail,
+        LifecyclePanel,
+        MoviePanel,
         SessionPanel,
         CommentPanel
     },
@@ -48,48 +44,19 @@ export default {
     },
     data() {
         return {
-            movie: null,
-            loading: false,
-            error: null
-        }
-    },
-    computed: {
-        path() {
-            if (!this.movie) {
-                return null;
-            }
-
-            const backdropPath = this.movie.backdropPath;
-
-            if (!backdropPath) {
-                return null;
-            }
-
-            return `https://image.tmdb.org/t/p/w780/${backdropPath}`;
+            movie: null
         }
     },
     methods: {
-        async loadMovie() {
-            this.loading = true;
-            this.error = null;
-
-            try {
-                this.movie = await MovieService.getById(this.id);
-            } catch (error) {
-                this.error = error.message;
-            } finally {
-                this.loading = false;
-            }
+        async load() {
+            this.movie = await MovieService.getById(this.id);
         }
-    },
-    created() {
-        this.loadMovie();
     }
 }
 </script>
 
 <style lang="scss" scoped>
-.movie-detail-view {
+.movie-panel-view {
     display: flex;
     justify-content: center;
 }

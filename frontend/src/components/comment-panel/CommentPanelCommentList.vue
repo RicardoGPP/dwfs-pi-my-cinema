@@ -1,7 +1,7 @@
 <template>
     <div class="comment-panel-comment-list">
         <div v-if="comments.length === 0" class="message">
-            Este filme ainda não possui comentários. Seja o primeiro a comentar!
+            Este filme ainda não possui comentários.
         </div>
         <div v-else class="content">
             <CommentItem

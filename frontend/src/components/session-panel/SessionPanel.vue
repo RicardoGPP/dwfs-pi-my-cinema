@@ -4,64 +4,57 @@
             Sessões
         </h1>
         <hr/>
-        <LoadingPanel
-            v-if="loading"
-        />
-        <ErrorPanel
-            v-else-if="error"
-            :message="error"
-            :retry="load"
-        />
-        <div v-else-if="sessions.length === 0" class="message">
-            Não há sessões disponíveis para este filme.
-        </div>
-        <div v-else class="content">
-            <div class="row">
-                <h3>
-                    Unidade:
-                </h3>
-                <SelectButton
-                    v-model="selection.location"
-                    :options="locationOptions"
-                    optionLabel="label"
-                    optionValue="value"
+        <LifecyclePanel :callback="load">
+            <div v-if="sessions.length === 0" class="message">
+                Não há sessões disponíveis para este filme.
+            </div>
+            <div v-else class="content">
+                <div class="row">
+                    <h3>
+                        Unidade:
+                    </h3>
+                    <SelectButton
+                        v-model="location"
+                        :options="locationOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                    />
+                </div>
+                <div v-if="location" class="row">
+                    <h3>
+                        Dia:
+                    </h3>
+                    <SelectButton
+                        v-model="date"
+                        :options="dateOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                    />
+                </div>
+                <div v-if="date" class="row">
+                    <h3>
+                        Horário:
+                    </h3>
+                    <SelectButton
+                        v-model="time"
+                        :options="timeOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                    />
+                </div>
+                <InfoPanel
+                    v-if="session"
+                    title="Detalhes da sessão"
+                    :message="`Nesta sessão o filme será em ${twoOrThreeD} e ${dubbedOrSubtitled}.`"
                 />
             </div>
-            <div v-if="this.selection.location" class="row">
-                <h3>
-                    Dia:
-                </h3>
-                <SelectButton
-                    v-model="selection.date"
-                    :options="dateOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                />
-            </div>
-            <div v-if="this.selection.date" class="row">
-                <h3>
-                    Horário:
-                </h3>
-                <SelectButton
-                    v-model="selection.time"
-                    :options="timeOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                />
-            </div>
-            <InfoPanel
-                v-if="session"
-                title="Detalhes da sessão"
-                :message="`Nesta sessão o filme será em ${twoOrThreeD} e ${dubbedOrSubtitled}.`"
-            />
-        </div>
+        </LifecyclePanel>
     </div>
 </template>
 
 <script>
 import SelectButton from 'primevue/selectbutton';
-import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
-import ErrorPanel from '@/components/error-panel/ErrorPanel.vue';
+import LifecyclePanel from '@/components/lifecycle-panel/LifecyclePanel.vue';
 import InfoPanel from '@/components/info-panel/InfoPanel.vue';
 import SessionService from '@/services/session-service';
 
@@ -69,26 +62,21 @@ export default {
     name: 'SessionPanel',
     components: {
         SelectButton,
-        LoadingPanel,
-        ErrorPanel,
+        LifecyclePanel,
         InfoPanel
     },
     props: {
-        movieId: {
-            type: String,
+        movie: {
+            type: Object,
             required: true
         }
     },
     data() {
         return {
             sessions: [],
-            selection: {
-                location: null,
-                date: null,
-                time: null
-            },
-            loading: false,
-            error: null
+            location: null,
+            date: null,
+            time: null
         }
     },
     computed: {
@@ -115,7 +103,7 @@ export default {
             return locations.map(toOption);
         },
         dateOptions() {
-            if (!this.selection.location) {
+            if (!this.location) {
                 return [];
             }
 
@@ -124,7 +112,7 @@ export default {
             for (let session of this.sessions) {
                 const location = session.location;
 
-                if (location.id !== this.selection.location.id) {
+                if (location.id !== this.location.id) {
                     continue;
                 }
 
@@ -149,7 +137,7 @@ export default {
             return dates.map(toOption);
         },
         timeOptions() {
-            if (!this.selection.location || !this.selection.date) {
+            if (!this.location || !this.date) {
                 return [];
             }
 
@@ -158,13 +146,13 @@ export default {
             for (let session of this.sessions) {
                 const location = session.location;
 
-                if (location.id !== this.selection.location.id) {
+                if (location.id !== this.location.id) {
                     continue;
                 }
 
                 const date = session.date;
 
-                if (date !== this.selection.date) {
+                if (date !== this.date) {
                     continue;
                 }
 
@@ -189,19 +177,19 @@ export default {
             return times.map(toOption);
         },
         session() {
-            const location = this.selection.location;
+            const location = this.location;
 
             if (!location) {
                 return null;
             }
 
-            const date = this.selection.date;
+            const date = this.date;
 
             if (!date) {
                 return null;
             }
 
-            const time = this.selection.time;
+            const time = this.time;
 
             if (!time) {
                 return null;
@@ -256,48 +244,38 @@ export default {
                 location = newValue[0].value;
             }
 
-            this.selection.location = location;
+            this.location = location;
         },
-        'selection.location'(newValue) {
+        'location'(newValue) {
             let date = null;
 
             if (newValue) {
                 date = this.dateOptions[0].value;
             }
 
-            this.selection.date = date;
+            this.date = date;
         },
-        'selection.date'(newValue) {
+        'date'(newValue) {
             let time = null;
 
             if (newValue) {
                 time = this.timeOptions[0].value;
             }
 
-            this.selection.time = time;
+            this.time = time;
         }
     },
     methods: {
-        async load() {
+        reset() {
             this.sessions = [];
-            this.selection.location = null;
-            this.selection.date = null;
-            this.selection.time = null;
-
-            this.loading = true;
-            this.error = null;
-
-            try {
-                this.sessions = await SessionService.getAll(this.movieId);
-            } catch (error) {
-                this.error = error.message;
-            } finally {
-                this.loading = false;
-            }
+            this.location = null;
+            this.date = null;
+            this.time = null;
+        },
+        async load() {
+            this.reset();
+            this.sessions = await SessionService.getAll(this.movie.id);
         }
-    },
-    created() {
-        this.load();
     }
 }
 </script>

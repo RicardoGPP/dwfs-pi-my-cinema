@@ -11,15 +11,15 @@
                 @click="openSignInDialog"
             />
         </div>
-        <SignUpDialog ref="signUpDialog"/>
-        <SignInDialog ref="signInDialog"/>
+        <SignUpDialog :ref="dialog.signUp"/>
+        <SignInDialog :ref="dialog.signIn"/>
     </div>
 </template>
 
 <script>
 import Button from 'primevue/button';
-import SignUpDialog from './../sign-up-dialog/SignUpDialog.vue';
-import SignInDialog from './../sign-in-dialog/SignInDialog.vue';
+import SignUpDialog from '@/components/sign-up-dialog/SignUpDialog.vue';
+import SignInDialog from '@/components/sign-in-dialog/SignInDialog.vue';
 
 export default {
     name: 'AppHeaderMenuPanelBeforeLoginPanel',
@@ -28,12 +28,20 @@ export default {
         SignUpDialog,
         SignInDialog
     },
+    data() {
+        return {
+            dialog: {
+                signUp: 'AppHeaderMenuPanelBeforeLoginPanel#SignUpDialog',
+                signIn: 'AppHeaderMenuPanelBeforeLoginPanel#SignInDialog'
+            }
+        }
+    },
     methods: {
         openSignUpDialog() {
-            this.$refs.signUpDialog.open(() => this.$emit('on-sign-up'));
+            this.$refs[this.dialog.signUp].open(() => null);
         },
         openSignInDialog() {
-            this.$refs.signInDialog.open(() => this.$emit('on-sign-in'));
+            this.$refs[this.dialog.signIn].open(() => null);
         }
     }
 }

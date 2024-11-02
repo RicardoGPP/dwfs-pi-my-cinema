@@ -4,55 +4,52 @@
             Cadastro de filmes
         </h1>
         <hr/>
-        <LoadingPanel
-            v-if="loading"
-        />
-        <ErrorPanel
-            v-else-if="error"
-            :message="error"
-            :retry="load"
-        />
-        <div v-else class="content">
-            <div class="action">
-                <Button
-                    label="Atualizar"
-                    severity="secondary"
-                    @click="load"
+        <LifecyclePanel :callback="load" :signal="signal">
+            <div class="content">
+                <div class="action">
+                    <Button
+                        label="Atualizar"
+                        severity="secondary"
+                        @click="doSignal"
+                    />
+                    <Button
+                        label="Criar"
+                        @click="create"
+                    />
+                </div>
+                <MovieTable
+                    :movies="movies"
+                    @update="update"
+                    @remove="remove"
                 />
-                <Button
-                    label="Criar"
-                    @click="create"
+                <MovieDialog
+                    :ref="dialog.movie"
+                />
+                <MovieOptionDialog
+                    :ref="dialog.movieOption"
                 />
             </div>
-            <MovieTable
-                :movies="movies"
-                @update="update"
-                @remove="remove"
-            />
-            <MovieDialog
-                :ref="dialog.movie"
-            />
-            <MovieOptionDialog
-                :ref="dialog.movieOption"
-            />
-        </div>
+        </LifecyclePanel>
     </div>
 </template>
 
 <script>
 import Button from 'primevue/button';
-import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
-import ErrorPanel from '@/components/error-panel/ErrorPanel.vue';
+import LifecyclePanel from '@/components/lifecycle-panel/LifecyclePanel.vue';
 import MovieTable from '@/components/movie-table/MovieTable.vue';
 import MovieDialog from '@/components/movie-dialog/MovieDialog.vue';
 import MovieOptionDialog from '@/components/movie-option-dialog/MovieOptionDialog.vue';
 import MovieService from '@/services/movie-service';
+import LifecycleSignalMixin from '@/mixins/lifecycle-signal-mixin';
 
 export default {
+    name: 'MoviesView',
+    mixins: [
+        LifecycleSignalMixin
+    ],
     components: {
         Button,
-        LoadingPanel,
-        ErrorPanel,
+        LifecyclePanel,
         MovieTable,
         MovieDialog,
         MovieOptionDialog
@@ -60,28 +57,15 @@ export default {
     data() {
         return {
             movies: [],
-            loading: false,
-            error: null,
             dialog: {
                 movie: 'MoviesView#MovieDialog',
                 movieOption: 'MoviesView#MovieOptionDialog'
             }
-        };
+        }
     },
     methods: {
         async load() {
-            this.movies = [];
-
-            this.loading = true;
-            this.error = null;
-
-            try {
-                this.movies = await MovieService.getAll();
-            } catch (error) {
-                this.error = error.message;
-            } finally {
-                this.loading = false;
-            }
+            this.movies = await MovieService.getAll();
         },
         create() {
             const loadMovie = (movieOption) => {
@@ -97,7 +81,7 @@ export default {
             };
 
             const refreshTable = () => {
-                return this.load();
+                this.doSignal();
             };
 
             const onFillMovie = (filledMovie) => {
@@ -118,7 +102,7 @@ export default {
             };
 
             const refreshTable = () => {
-                this.load();
+                this.doSignal();
             };
 
             const onFillMovie = (filledMovie) => {
@@ -131,13 +115,11 @@ export default {
         async remove(movie) {
             try {
                 await MovieService.delete(movie.id);
+                this.doSignal();
             } catch (error) {
-                //TODO: Handle error properly.
                 console.error(error.message);
                 return;
             }
-
-            this.load();
         }
     },
     mounted() {

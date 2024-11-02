@@ -1,8 +1,8 @@
 <template>
-    <div class="movie-detail">
+    <div class="movie-panel">
         <div class="poster">
             <img
-                :src="path"
+                :src="movie.posterPath"
                 :alt="movie.title"
                 :title="movie.title"
             />
@@ -54,7 +54,7 @@
 
 <script>
 export default {
-    name: 'MovieDetail',
+    name: 'MoviePanel',
     props: {
         movie: {
             type: Object,
@@ -62,9 +62,6 @@ export default {
         }
     },
     computed: {
-        path() {
-            return `https://image.tmdb.org/t/p/w500/${this.movie.posterPath}`;
-        },
         formattedReleaseDate() {
             const parts = this.movie.releaseDate.split('-');
 
@@ -91,7 +88,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.movie-detail {
+.movie-panel {
     display: flex;
     flex-direction: row;
     justify-content: center;

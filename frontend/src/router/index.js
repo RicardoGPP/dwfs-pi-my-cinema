@@ -67,15 +67,17 @@ const router = createRouter({
     routes
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
     const token = localStorage.getItem('token');
 
-    if (token) {
-        const decodedToken = jwtDecode(token);
+    let admin = false;
 
-        if (to.meta.requiresAdmin && !decodedToken.groups.includes('ADMIN')) {
-            return next({ name: 'unauthorized' });
-        }
+    if (token) {
+        admin = jwtDecode(token).admin;
+    }
+
+    if (to.meta.requiresAdmin && !admin) {
+        return next({ name: 'unauthorized' });
     }
 
     next();

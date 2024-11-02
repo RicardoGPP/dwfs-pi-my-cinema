@@ -19,23 +19,16 @@
                     />
                 </div>
                 <div class="result">
-                    <LoadingPanel
-                        v-if="loading"
-                    />
-                    <ErrorPanel
-                        v-else-if="error"
-                        :message="error"
-                        :retry="load"
-                    />
-                    <Listbox
-                        v-else
-                        v-model="movieOption"
-                        :options="movieOptions"
-                        optionLabel="title"
-                        emptyMessage="Não há opções a exibir"
-                        striped
-                        listStyle="width: 300px; height: 250px"
-                    />
+                    <LifecyclePanel :callback="load" :signal="signal">
+                        <Listbox
+                            v-model="movieOption"
+                            :options="movieOptions"
+                            optionLabel="title"
+                            emptyMessage="Não há opções a exibir"
+                            striped
+                            listStyle="width: 300px; height: 250px"
+                        />
+                    </LifecyclePanel>
                 </div>
             </div>
             <template #footer>
@@ -59,19 +52,21 @@ import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import Listbox from 'primevue/listbox';
 import Button from 'primevue/button';
-import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
-import ErrorPanel from '@/components/error-panel/ErrorPanel.vue';
+import LifecyclePanel from '@/components/lifecycle-panel/LifecyclePanel.vue';
 import MovieService from '@/services/movie-service';
+import LifecycleSignalMixin from '@/mixins/lifecycle-signal-mixin';
 
 export default {
     name: 'MovieOptionDialog',
+    mixins: [
+        LifecycleSignalMixin
+    ],
     components: {
         Dialog,
         InputText,
         Listbox,
         Button,
-        LoadingPanel,
-        ErrorPanel
+        LifecyclePanel
     },
     data() {
         return {
@@ -79,9 +74,7 @@ export default {
             callback: null,
             name: '',
             movieOptions: [],
-            movieOption: null,
-            controller: null,
-            loading: false
+            movieOption: null
         }
     },
     computed: {
@@ -94,8 +87,6 @@ export default {
             this.name = '';
             this.movieOptions = [];
             this.movieOption = null;
-            this.loading = false;
-            this.error = null;
             this.callback = callback;
             this.visible = true;
         },
@@ -106,24 +97,21 @@ export default {
             const nameAtThisMoment = this.name;
             setTimeout(() => {
                 if (nameAtThisMoment === this.name) {
-                    this.load();
+                    this.doSignal();
                 }
             }, 500);
         },
-        async load() {
+        reset() {
             this.movieOptions = [];
             this.movieOption = null;
+        },
+        async load() {
+            this.reset();
 
-            this.loading = true;
-            this.error = null;
+            const movieOptions = await MovieService.getMovieOptions(this.name);
 
-            try {
-                this.movieOptions = await MovieService.getMovieOptions(this.name);
-            } catch (error) {
-                this.error = error.message;
-            } finally {
-                this.loading = false;
-            }
+            this.movieOptions = movieOptions;
+            this.movieOption = movieOptions.length === 0 ? null : movieOptions[0];
         },
         apply() {
             this.callback(this.movieOption);

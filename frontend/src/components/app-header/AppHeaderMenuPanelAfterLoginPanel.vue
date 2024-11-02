@@ -16,34 +16,41 @@
 <script>
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
+import AuthMixin from '@/mixins/auth-mixin';
 
 export default {
     name: 'AppHeaderMenuPanelAfterLoginPanel',
+    mixins: [
+        AuthMixin
+    ],
     components: {
         Button,
         Menu
     },
-    props: {
-        admin: {
-            type: Boolean,
-            required: true
-        },
-        username: {
-            type: String,
-            required: true
-        }
-    },
     computed: {
         firstname() {
-            if (!this.username) {
+            if (!this.user) {
                 return null;
             }
-            return this.username.split(' ')[0];
+
+            const name = this.user.name;
+
+            if (!name) {
+                return null;
+            }
+
+            return name.split(' ')[0];
+        },
+        menuItems() {
+            return this.getMenuItems();
         }
     },
-    data() {
-        return {
-            menuItems: [
+    methods: {
+        toggleMenu(event) {
+            this.$refs.menu.toggle(event);
+        },
+        getMenuItems() {
+            return [
                 {
                     label: 'Perfil',
                     icon: 'pi pi-user',
@@ -52,34 +59,41 @@ export default {
                 {
                     separator: true
                 },
-                ...!this.admin ? [] : [
-                    {
-                        label: 'Filmes',
-                        icon: 'pi pi-video',
-                        command: () => this.$router.push('/movies')
-                    },
-                    {
-                        label: 'Localizações',
-                        icon: 'pi pi-map-marker',
-                        command: () => this.$router.push('/locations')
-                    },
-                    {
-                        label: 'Sessões',
-                        icon: 'pi pi-calendar',
-                        command: () => this.$router.push('/sessions')
-                    }
-                ],
+                ...this.getAdminMenuItems(),
                 {
-                    label: 'Logout',
+                    label: 'Sair',
                     icon: 'pi pi-sign-out',
-                    command: () => this.$emit('logout')
+                    command: () => this.doLogout()
                 }
-            ]
-        }
-    },
-    methods: {
-        toggleMenu(event) {
-            this.$refs.menu.toggle(event);
+            ];
+        },
+        getAdminMenuItems() {
+            const admin = (this.user || { admin: false }).admin;
+
+            if (!admin) {
+                return [];
+            }
+
+            return [
+                {
+                    label: 'Cadastro de filmes',
+                    icon: 'pi pi-video',
+                    command: () => this.$router.push('/movies')
+                },
+                {
+                    label: 'Cadastro de localizações',
+                    icon: 'pi pi-map-marker',
+                    command: () => this.$router.push('/locations')
+                },
+                {
+                    label: 'Cadastro de sessões',
+                    icon: 'pi pi-calendar',
+                    command: () => this.$router.push('/sessions')
+                },
+                {
+                    separator: true
+                }
+            ];
         }
     }
 }

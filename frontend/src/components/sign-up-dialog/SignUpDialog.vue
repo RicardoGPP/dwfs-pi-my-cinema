@@ -61,9 +61,13 @@ import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
 import UserService from '@/services/user-service';
+import AuthMixin from '@/mixins/auth-mixin';
 
 export default {
     name: 'SignUpDialog',
+    mixins: [
+        AuthMixin
+    ],
     components: {
         Dialog,
         InputText,
@@ -114,28 +118,11 @@ export default {
 
             try {
                 await UserService.create(user);
+                await this.doLogin(this.email, this.password);
+                this.close();
             } catch (error) {
                 this.error = error.message;
-                return;
             }
-
-            const credentials = {
-                email: this.email,
-                password: this.password
-            };
-
-            let token = null;
-
-            try {
-                token = await UserService.login(credentials);
-            } catch (error) {
-                this.error = error.message;
-                return;
-            }
-
-            localStorage.setItem('token', token);
-
-            this.close();
         }
     }
 };

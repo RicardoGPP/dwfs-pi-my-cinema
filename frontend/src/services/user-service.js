@@ -29,7 +29,7 @@ const userService = {
         return response.data;
     },
 
-    async login(credentials) {
+    async doLogin(credentials) {
         const response = await api.post(`${RESOURCE}/login`, credentials);
         return response.data.token;
     }

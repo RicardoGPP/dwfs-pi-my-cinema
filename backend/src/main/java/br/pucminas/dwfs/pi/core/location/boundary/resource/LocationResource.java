@@ -52,7 +52,6 @@ public class LocationResource {
     LocationMapper locationMapper;
 
     @GET
-    @RolesAllowed("ADMIN")
     @Operation(summary = "Gets all locations.")
     @APIResponse(
         responseCode = "200",
@@ -87,7 +86,6 @@ public class LocationResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
     @Operation(summary = "Gets a location by its ID.")
     @APIResponse(
         responseCode = "200",

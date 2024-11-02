@@ -1,65 +1,23 @@
 <template>
     <div class="app-header-menu-panel">
-        <BeforeLoginPanel
-            v-if="!loggedIn"
-            @on-sign-up="checkUserStatus"
-            @on-sign-in="checkUserStatus"
-        />
-        <AfterLoginPanel
-            v-else
-            :username="username"
-            :admin="admin"
-            @logout="logout"
-        />
+        <BeforeLoginPanel v-if="!user"/>
+        <AfterLoginPanel v-else/>
     </div>
 </template>
 
 <script>
-import { jwtDecode } from 'jwt-decode';
 import BeforeLoginPanel from './AppHeaderMenuPanelBeforeLoginPanel.vue';
 import AfterLoginPanel from './AppHeaderMenuPanelAfterLoginPanel.vue';
+import AuthMixin from '@/mixins/auth-mixin';
 
 export default {
     name: 'AppHeaderMenuPanel',
+    mixins: [
+        AuthMixin
+    ],
     components: {
         BeforeLoginPanel,
         AfterLoginPanel
-    },
-    data() {
-        return {
-            loggedIn: false,
-            admin: false,
-            username: ''
-        }
-    },
-    methods: {
-        checkUserStatus() {
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                this.loggedIn = false;
-                this.admin = false;
-                return;
-            }
-
-            const decodedToken = jwtDecode(token);
-
-            this.username = decodedToken.name || 'Usuário';
-            this.admin = decodedToken.groups && decodedToken.groups.includes('ADMIN');
-            this.loggedIn = true;
-        },
-        logout() {
-            localStorage.removeItem('token');
-
-            this.loggedIn = false;
-            this.admin = false;
-            this.username = '';
-
-            this.$router.push('/');
-        }
-    },
-    mounted() {
-        this.checkUserStatus();
     }
 }
 </script>

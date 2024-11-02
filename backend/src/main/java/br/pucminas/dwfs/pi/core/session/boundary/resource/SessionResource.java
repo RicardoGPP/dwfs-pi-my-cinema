@@ -63,7 +63,6 @@ public class SessionResource {
     SessionMapper sessionMapper;
 
     @GET
-    @RolesAllowed("ADMIN")
     @Operation(summary = "Gets all sessions.")
     @APIResponse(
         responseCode = "200",
@@ -133,7 +132,6 @@ public class SessionResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
     @Operation(summary = "Gets a session by its ID.")
     @APIResponse(
         responseCode = "200",

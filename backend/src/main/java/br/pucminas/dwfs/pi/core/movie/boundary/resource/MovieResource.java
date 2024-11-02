@@ -158,7 +158,6 @@ public class MovieResource {
 
     @GET
     @Path("/options")
-    @RolesAllowed("ADMIN")
     @Operation(summary = "Gets the movie options by a name.")
     @APIResponse(
         responseCode = "200",
@@ -199,7 +198,6 @@ public class MovieResource {
 
     @GET
     @Path("/options/{id}")
-    @RolesAllowed("ADMIN")
     @Operation(summary = "Gets a movie by a movie option ID.")
     @APIResponse(
         responseCode = "200",

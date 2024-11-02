@@ -3,56 +3,38 @@
         <h1>
             Filmes em cartaz
         </h1>
-        <LoadingPanel
-            v-if="loading"
-        />
-        <span v-else-if="error" class="error">
-            {{ error }}
-        </span>
-        <span v-else-if="movies.length == 0" class="message">
-            Não há filmes em cartaz no momento.
-        </span>
-        <MovieGrid
-            v-else
-            :movies="movies"
-        />
+        <LifecyclePanel :callback="load">
+            <span v-if="movies.length == 0" class="message">
+                Não há filmes em cartaz no momento.
+            </span>
+            <MovieGrid
+                v-else
+                :movies="movies"
+            />
+        </LifecyclePanel>
     </div>
 </template>
 
 <script>
-import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
+import LifecyclePanel from '@/components/lifecycle-panel/LifecyclePanel.vue';
 import MovieGrid from '@/components/movie-grid/MovieGrid.vue';
 import MovieService from '@/services/movie-service.js';
 
 export default {
     name: 'HomeView',
     components: {
-        LoadingPanel,
+        LifecyclePanel,
         MovieGrid
     },
     data() {
         return {
-            movies: [],
-            loading: false,
-            error: null
+            movies: []
         }
     },
     methods: {
-        async loadMovies() {
-            this.loading = true;
-            this.error = null;
-
-            try {
-                this.movies = await MovieService.getAll(true);
-            } catch (error) {
-                this.error = error.message;
-            } finally {
-                this.loading = false;
-            }
+        async load() {
+            this.movies = await MovieService.getAll(true);
         }
-    },
-    mounted() {
-        this.loadMovies();
     }
 }
 </script>

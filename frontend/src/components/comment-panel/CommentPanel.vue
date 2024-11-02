@@ -4,103 +4,91 @@
             Comentários
         </h1>
         <hr/>
-        <LoadingPanel
-            v-if="loading"
-        />
-        <ErrorPanel
-            v-else-if="error"
-            :message="error"
-            :retry="load"
-        />
-        <div v-else class="content">
-            <InfoPanel
-                v-if="summary"
-                title="Resumo dos comentários"
-                :message="summary"
-            />
-            <CommentList
-                :comments="comments"
-            />
-            <CommentInput
-                @post="post"
-            />
-        </div>
+        <LifecyclePanel :callback="load" :signal="signal">
+            <div class="content">
+                <InfoPanel
+                    v-if="summary"
+                    title="Resumo dos comentários"
+                    :message="summary"
+                />
+                <CommentList
+                    :comments="comments"
+                />
+                <CommentInput
+                    v-if="user"
+                    @post="post"
+                />
+            </div>
+        </LifecyclePanel>
     </div>
 </template>
 
 <script>
-import LoadingPanel from '@/components/loading-panel/LoadingPanel.vue';
-import ErrorPanel from '@/components/error-panel/ErrorPanel.vue';
+import LifecyclePanel from '@/components/lifecycle-panel/LifecyclePanel.vue';
 import InfoPanel from '@/components/info-panel/InfoPanel.vue';
 import CommentList from './CommentPanelCommentList.vue';
 import CommentInput from './CommentPanelCommentInput.vue';
 import CommentService from '@/services/comment-service';
+import LifecycleSignalMixin from '@/mixins/lifecycle-signal-mixin';
+import AuthMixin from '@/mixins/auth-mixin';
 
 export default {
     name: 'CommentPanel',
+    mixins: [
+        LifecycleSignalMixin,
+        AuthMixin
+    ],
     components: {
-        LoadingPanel,
-        ErrorPanel,
+        LifecyclePanel,
         InfoPanel,
         CommentList,
         CommentInput
     },
     props: {
-        movieId: {
-            type: String,
+        movie: {
+            type: Object,
             required: true
         }
     },
     data() {
         return {
             comments: [],
-            summary: null,
-            loading: false,
-            error: null
+            summary: null
         }
     },
     methods: {
-        async load() {
+        reset() {
             this.comments = [];
             this.summary = null;
-            this.loading = true;
-            this.error = null;
+        },
+        async load() {
+            this.reset();
 
-            let responses;
+            const promises = [];
 
-            try {
-                responses = await Promise.all([
-                    CommentService.getAll(this.movieId),
-                    CommentService.getSummary(this.movieId)
-                ]);
-            } catch (error) {
-                this.error = error.message;
-                return;
-            } finally {
-                this.loading = false;
-            }
+            promises.push(CommentService.getAll(this.movie.id));
+            promises.push(CommentService.getSummary(this.movie.id));
+
+            const responses = await Promise.all(promises);
 
             this.comments = responses[0];
             this.summary = responses[1];
         },
         async post(text) {
             const comment = {
-                movieId: this.movieId,
+                movieId: this.movie.id,
                 text
             };
 
             try {
                 await CommentService.create(comment);
             } catch (error) {
-                //TODO: handle error properly.
                 console.error(error.message);
+                return;
             }
 
-            await this.load();
+            this.doSignal();
         }
-    },
-    created() {
-        this.load();
     }
 }
 </script>

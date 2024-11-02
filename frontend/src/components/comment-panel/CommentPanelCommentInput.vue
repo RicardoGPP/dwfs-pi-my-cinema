@@ -10,7 +10,7 @@
             <Button
                 label="Postar"
                 :disabled="!canPost"
-                @click="$emit('post', text)"
+                @click="post"
             />
         </div>
     </div>

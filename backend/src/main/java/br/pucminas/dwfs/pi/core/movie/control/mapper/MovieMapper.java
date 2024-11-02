@@ -115,10 +115,50 @@ public interface MovieMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "releaseDate", source = "release_date")
-    @Mapping(target = "posterPath", source = "poster_path")
-    @Mapping(target = "backdropPath", source = "backdrop_path")
+    @Mapping(target = "posterPath", expression = "java(fromTmdbMovieDto_toPosterPath(tmdbMovieDto))")
+    @Mapping(target = "backdropPath", expression = "java(fromTmdbMovieDto_toBackdropPath(tmdbMovieDto))")
     @Mapping(target = "comments", ignore = true)
     Movie fromTmdbMovieDto_toMovie(TmdbMovieDto tmdbMovieDto);
+
+    /**
+     * Converts a TMDB movie DTO into a poster path.
+     * 
+     * @param tmdbMovieDto The TMDB movie DTO to be converted.
+     * @return The converted poster path.
+     */
+    default String fromTmdbMovieDto_toPosterPath(TmdbMovieDto tmdbMovieDto) {
+        if (tmdbMovieDto == null) {
+            return null;
+        }
+
+        String posterPath = tmdbMovieDto.getPoster_path();
+
+        if (posterPath == null) {
+            return null;
+        }
+
+        return String.format("https://image.tmdb.org/t/p/w500/%s", posterPath);
+    }
+
+    /**
+     * Converts a TMDB movie DTO into a backdrop path.
+     * 
+     * @param tmdbMovieDto The TMDB movie DTO to be converted.
+     * @return The converted backdrop path.
+     */
+    default String fromTmdbMovieDto_toBackdropPath(TmdbMovieDto tmdbMovieDto) {
+        if (tmdbMovieDto == null) {
+            return null;
+        }
+
+        String backdropPath = tmdbMovieDto.getBackdrop_path();
+
+        if (backdropPath == null) {
+            return null;
+        }
+
+        return String.format("https://image.tmdb.org/t/p/w780/%s", backdropPath);
+    }
 
     /**
      * Converts a list of TMDB genres DTO into a list of String genres.

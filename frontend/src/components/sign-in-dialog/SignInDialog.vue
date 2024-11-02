@@ -52,10 +52,13 @@ import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
-import UserService from '@/services/user-service';
+import AuthMixin from '@/mixins/auth-mixin';
 
 export default {
     name: 'SignInDialog',
+    mixins: [
+        AuthMixin
+    ],
     components: {
         Dialog,
         InputText,
@@ -95,24 +98,13 @@ export default {
                 && value !== '';
         },
         async signIn() {
-            const credentials = {
-                email: this.email,
-                password: this.password
-            };
-
-            let token = null;
-
             try {
-                token = await UserService.login(credentials);
+                await this.doLogin(this.email, this.password);
+                this.close();
             } catch (error) {
                 this.error = error.message;
                 this.password = null;
-                return;
             }
-
-            localStorage.setItem('token', token);
-
-            this.close();
         }
     }
 };

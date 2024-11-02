@@ -4,7 +4,7 @@
         @click="goToMovieDetail">
         <div class="poster">
             <img
-                :src="path"
+                :src="movie.posterPath"
                 :alt="movie.title"
                 :title="movie.title"
             />
@@ -25,11 +25,6 @@ export default {
         movie: {
             type: Object,
             required: true
-        }
-    },
-    computed: {
-        path() {
-            return `https://image.tmdb.org/t/p/w500/${this.movie.posterPath}`;
         }
     },
     methods: {

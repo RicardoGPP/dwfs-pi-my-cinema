@@ -119,7 +119,10 @@ public class UserServiceDefault implements UserService {
         return Jwt
             .issuer(issuer)
             .upn(user.getEmail())
+            .claim("id", user.getId())
             .claim("name", user.getName())
+            .claim("email", user.getEmail())
+            .claim("admin", user.getRole().equals(UserRole.ADMIN))
             .groups(Set.of(user.getRole().name()))
             .expiresIn(Duration.ofHours(24))
             .sign();
