@@ -118,7 +118,6 @@ export default {
                 this.doSignal();
             } catch (error) {
                 console.error(error.message);
-                return;
             }
         }
     },

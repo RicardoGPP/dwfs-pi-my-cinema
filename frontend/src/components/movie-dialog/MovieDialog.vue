@@ -148,7 +148,7 @@ export default {
                 source: null,
                 target: null
             }
-        };
+        }
     },
     computed: {
         action() {

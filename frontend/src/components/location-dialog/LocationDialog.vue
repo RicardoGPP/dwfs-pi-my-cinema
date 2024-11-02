@@ -1,50 +1,59 @@
 <template>
-    <Dialog
-        class="location-dialog"
-        header="Localização"
-        v-model:visible="dialogVisible"
-        modal
-        :closable="false">
-        <div class="form-group">
-            <label for="name">
-                Nome:
-            </label>
-            <InputText
-                v-model="location.name"
-                id="name"
-                placeholder="Digite o nome da localização"
-            />
-        </div>
-        <div class="form-group">
-            <label for="address">
-                Endereço:
-            </label>
-            <InputText
-                v-model="location.address"
-                id="address"
-                placeholder="Digite o endereço da localização"
-            />
-        </div>
-        <template #footer>
-            <Button
-                label="Salvar"
-                icon="pi pi-check"
-                @click="saveLocation"
-            />
-            <Button
-                label="Cancelar"
-                icon="pi pi-times"
-                class="p-button-secondary"
-                @click="closeDialog"
-            />
-        </template>
-    </Dialog>
+    <div class="location-dialog">
+        <Dialog
+            v-if="visible"
+            v-model:visible="visible"
+            :header="`${action} de localização`"
+            :draggable="false"
+            modal
+            contentStyle="width: 400px">
+
+            <!-- Name -->
+            <div class="input">
+                <label for="name">
+                    *Name:
+                </label>
+                <InputText
+                    id="name"
+                    v-model="location.target.name"
+                    placeholder="Digite o nome"
+                    autofocus
+                />
+            </div>
+
+            <!-- Address -->
+            <div class="input">
+                <label for="address">
+                    *Tagline:
+                </label>
+                <InputText
+                    id="address"
+                    v-model="location.target.address"
+                    placeholder="Digite o endereço"
+                />
+            </div>
+
+            <!-- Actions -->
+            <template #footer>
+                <Button
+                    label="Aplicar"
+                    @click="apply"
+                />
+                <Button
+                    label="Cancelar"
+                    class="p-button-secondary"
+                    @click="close"
+                />
+            </template>
+        </Dialog>
+    </div>
 </template>
 
 <script>
 import InputText from 'primevue/inputtext';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
+import _ from 'lodash';
 
 export default {
     components: {
@@ -54,40 +63,63 @@ export default {
     },
     data() {
         return {
-            dialogVisible: false,
+            visible: false,
+            callback: null,
+            mode: null,
             location: {
-                name: '',
-                address: ''
+                source: null,
+                target: null
             }
-        };
+        }
+    },
+    computed: {
+        action() {
+            if (this.mode === 'create') {
+                return 'Criação';
+            }
+            return 'Edição';
+        }
     },
     methods: {
-        openDialog(location = null) {
-            if (location) {
-                this.location.name = location.name;
-                this.location.address = location.address;
+        open(mode, location, callback) {
+            this.mode = mode;
+
+            if (mode === 'create') {
+                this.location.target = this.getDefault();
             } else {
-                this.location.name = '';
-                this.location.address = '';
+                this.location.source = location;
+                this.location.target = _.cloneDeep(location);
             }
-            this.dialogVisible = true;
+
+            this.callback = callback;
+            this.visible = true;
         },
-        saveLocation() {
-            this.$emit('save', { ...this.location });
-            this.dialogVisible = false;
+        getDefault() {
+            return {
+                name: '',
+                address: ''
+            };
         },
-        closeDialog() {
-            this.dialogVisible = false;
+        close() {
+            this.visible = false;
+        },
+        apply() {
+            this.callback(this.location.target);
+            this.close();
         }
     }
 };
 </script>
 
-<style scoped>
-.form-group {
+<style lang="scss" scoped>
+.input {
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-bottom: 1rem;
+
+    & > label {
+        font-weight: bold;
+    }
 }
 </style>
