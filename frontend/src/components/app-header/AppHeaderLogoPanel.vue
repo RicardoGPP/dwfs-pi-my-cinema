@@ -1,8 +1,16 @@
 <template>
     <div class="app-header-logo-panel">
         <router-link to="/">
-            <span>MY</span>
-            <span>CINEMA</span>
+            <div class="content">
+                <img
+                    src="/logo.webp"
+                    height="40"
+                />
+                <div>
+                    <span>My</span>
+                    <span>Cinema</span>
+                </div>
+            </div>
         </router-link>
     </div>
 </template>
@@ -14,18 +22,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.app-header-logo-panel {
-    font-size: 30px;
+.app-header-logo-panel a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-size: 25px;
     color: #ffffff;
     font-weight: bold;
 
-    & span:first-child {
-        color: #00FF7F;
+    &:hover * {
+        filter: brightness(1.2);
+        transition: 0.2s;
     }
 
-    & a {
-        color: #ffffff;
-        text-decoration: none;
+    & > img {
+        border-radius: 50px;
+        border: 1px solid #00FF7F;
+    }
+
+    & span:first-child {
+        color: #00FF7F;
     }
 }
 </style>
