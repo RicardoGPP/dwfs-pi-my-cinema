@@ -6,6 +6,7 @@
         <Button
             v-if="retry"
             label="Tentar novamente"
+            severity="secondary"
             @click="retry"
         />
     </div>
@@ -39,5 +40,9 @@ export default {
     align-items: center;
     justify-content: center;
     gap: 10px;
+}
+
+span {
+    color: #ff0000;
 }
 </style>

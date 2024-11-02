@@ -33,12 +33,17 @@ const movieService = {
         return response.data;
     },
 
-    async getPreview(name) {
-        const response = await api.get(`${RESOURCE}/preview`, {
+    async getMovieOptions(name) {
+        const response = await api.get(`${RESOURCE}/options`, {
             params: {
                 name
             }
         });
+        return response.data;
+    },
+
+    async getMovieByMovieOptionId(movieOptionId) {
+        const response = await api.get(`${RESOURCE}/options/${movieOptionId}`);
         return response.data;
     }
 };

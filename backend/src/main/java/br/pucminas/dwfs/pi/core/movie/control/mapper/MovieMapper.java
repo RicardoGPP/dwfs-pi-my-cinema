@@ -52,6 +52,7 @@ public interface MovieMapper {
      * @return The converted movie.
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     Movie fromMovieCreateDto_toMovie(MovieCreateDto movieCreateDto);
 
     /**
@@ -61,6 +62,7 @@ public interface MovieMapper {
      * @return The converted movie.
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     Movie fromMovieUpdateDto_toMovie(MovieUpdateDto movieUpdateDto);
 
     /**
@@ -115,6 +117,7 @@ public interface MovieMapper {
     @Mapping(target = "releaseDate", source = "release_date")
     @Mapping(target = "posterPath", source = "poster_path")
     @Mapping(target = "backdropPath", source = "backdrop_path")
+    @Mapping(target = "comments", ignore = true)
     Movie fromTmdbMovieDto_toMovie(TmdbMovieDto tmdbMovieDto);
 
     /**

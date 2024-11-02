@@ -2,6 +2,8 @@ package br.pucminas.dwfs.pi.core.movie.entity;
 
 import java.util.List;
 
+import br.pucminas.dwfs.pi.core.comment.entity.Comment;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -10,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -64,4 +67,7 @@ public class Movie {
 
     @Column(name = "backdrop_path")
     private String backdropPath;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 }
