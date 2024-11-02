@@ -237,32 +237,17 @@ export default {
         }
     },
     watch: {
-        'locationOptions'(newValue) {
-            let location = null;
-
-            if (newValue.length > 0) {
-                location = newValue[0].value;
-            }
-
-            this.location = location;
+        'locationOptions'() {
+            this.location = this.getLocation();
+            this.date = this.getDate();
+            this.time = this.getTime();
         },
-        'location'(newValue) {
-            let date = null;
-
-            if (newValue) {
-                date = this.dateOptions[0].value;
-            }
-
-            this.date = date;
+        'location'() {
+            this.date = this.getDate();
+            this.time = this.getTime();
         },
-        'date'(newValue) {
-            let time = null;
-
-            if (newValue) {
-                time = this.timeOptions[0].value;
-            }
-
-            this.time = time;
+        'date'() {
+            this.time = this.getTime();
         }
     },
     methods: {
@@ -275,6 +260,33 @@ export default {
         async load() {
             this.reset();
             this.sessions = await SessionService.getAll(this.movie.id);
+        },
+        getLocation() {
+            let location = null;
+
+            if (this.locationOptions.length > 0) {
+                location = this.locationOptions[0].value;
+            }
+
+            return location;
+        },
+        getDate() {
+            let date = null;
+
+            if (this.location) {
+                date = this.dateOptions[0].value;
+            }
+
+            return date;
+        },
+        getTime() {
+            let time = null;
+
+            if (this.date) {
+                time = this.timeOptions[0].value;
+            }
+
+            return time;
         }
     }
 }
