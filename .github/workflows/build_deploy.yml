@@ -1,0 +1,154 @@
+name: Build and Deploy MyCinema
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  infrastructure:
+    name: Set Up Infrastructure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CloudFormation Stack
+        uses: aws-actions/aws-cli-action@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          command: |
+            aws cloudformation deploy \
+              --stack-name mycinema-infrastructure \
+              --template-file infrastructure/cloudformation.yml \
+              --capabilities CAPABILITY_NAMED_IAM \
+              --parameter-overrides \
+                DBMasterUsername=${{ secrets.DB_USER }} \
+                DBMasterUserPassword=${{ secrets.DB_PASSWORD }} \
+                DBName=${{ secrets.DB_NAME }} \
+                S3BucketName=${{ secrets.AWS_S3_BUCKET }}
+
+      - name: Obtain DB Host
+        id: get-db-host
+        run: |
+          DB_HOST=$(aws rds describe-db-instances --db-instance-identifier ${{ secrets.DB_NAME }} --query "DBInstances[0].Endpoint.Address" --output text --region ${{ secrets.AWS_REGION }})
+          echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+
+  backend:
+    name: Build and Deploy Backend
+    runs-on: ubuntu-latest
+    needs: infrastructure
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: mvn clean install --file backend/pom.xml
+
+      - name: Run unit tests
+        run: mvn test --file backend/pom.xml
+
+      - name: Create JWT private key file
+        run: |
+          mkdir -p backend/src/main/resources/META-INF/resources
+          echo "${{ secrets.JWT_SIGN_KEY }}" > backend/src/main/resources/META-INF/resources/privateKey.pem
+
+      - name: Build Docker image with Quarkus
+        run: |
+          mvn package -Pnative -Dquarkus.container-image.build=true -f backend/pom.xml
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Tag Docker image
+        run: |
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend"
+          docker tag mycinema-backend:latest $IMAGE_URI:latest
+
+      - name: Push Docker image to ECR
+        run: |
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend"
+          docker push $IMAGE_URI:latest
+
+      - name: Deploy to ECS
+        uses: aws-actions/aws-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ecs-task-definition.json
+          service: mycinema-backend-service
+          cluster: mycinema-cluster
+          wait-for-service-stability: true
+        env:
+          JWT_SIGN_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          DB_HOST: ${{ env.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Obtain Backend Endpoint
+        id: get-backend-endpoint
+        run: |
+          BACKEND_URL=$(aws ecs describe-services --cluster mycinema-cluster --services mycinema-backend-service --query "services[0].loadBalancers[0].dnsName" --output text --region ${{ secrets.AWS_REGION }})
+          echo "BACKEND_API_URL=$BACKEND_URL" >> $GITHUB_ENV
+
+  frontend:
+    name: Build and Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Set API URL environment variable
+        run: |
+          echo "VUE_APP_API_URL=http://${{ env.BACKEND_API_URL }}" > frontend/.env
+
+      - name: Run build
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Deploy to S3
+        uses: aws-actions/s3-sync-action@v3.1.0
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          SOURCE_DIR: ./frontend/dist

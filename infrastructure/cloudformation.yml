@@ -1,0 +1,39 @@
+ AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  MyCinemaRDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: mycinema-db
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      Engine: postgres
+      MasterUsername: !Ref DBMasterUsername
+      MasterUserPassword: !Ref DBMasterUserPassword
+      DBName: !Ref DBName
+      BackupRetentionPeriod: 7
+      PubliclyAccessible: false
+
+  MyCinemaS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketName
+      AccessControl: PublicRead
+
+Parameters:
+  DBMasterUsername:
+    Type: String
+    Description: The master username for the RDS instance
+
+  DBMasterUserPassword:
+    Type: String
+    Description: The master user password for the RDS instance
+    NoEcho: true
+
+  DBName:
+    Type: String
+    Description: The name of the database
+
+  S3BucketName:
+    Type: String
+    Description: The name of the S3 bucket for storing frontend assets
