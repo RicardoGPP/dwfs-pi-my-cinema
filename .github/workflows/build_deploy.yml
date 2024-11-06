@@ -90,16 +90,17 @@ jobs:
 
       - name: Build Docker image with Quarkus
         run: |
-          mvn package -Pnative -Dquarkus.container-image.build=true -f backend/pom.xml -DskipTests
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend"
+          mvn package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=latest -Dquarkus.container-image.name=$IMAGE_URI -f backend/pom.xml -DskipTests
 
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Tag Docker image
-        run: |
-          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend"
-          docker tag mycinema-backend:latest $IMAGE_URI:latest
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          region: ${{ secrets.AWS_REGION }}
 
       - name: Push Docker image to ECR
         run: |
