@@ -139,14 +139,10 @@ jobs:
           envsubst < ecs-task-definition-template.json > ecs-task-definition.json
           cat ecs-task-definition.json
 
-      - name: Register ECS task definition
-        run: |
-          aws ecs register-task-definition --cli-input-json file://infrastructure/ecs-task-definition.json
-
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: mycinema-backend-task
+          task-definition: infrastructure/ecs-task-definition.json
           service: mycinema-backend-service
           cluster: mycinema-cluster
           wait-for-service-stability: true
