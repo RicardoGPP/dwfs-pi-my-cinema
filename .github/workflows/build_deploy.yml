@@ -27,10 +27,6 @@ jobs:
 
       - name: Set up AWS CloudFormation Stack
         run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile default
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile default
-          aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }} --profile default
-          aws configure set region ${{ secrets.AWS_REGION }} --profile default
           aws cloudformation deploy \
             --stack-name mycinema-infrastructure \
             --template-file infrastructure/cloudformation.yml \
@@ -46,6 +42,11 @@ jobs:
         run: |
           DB_HOST=$(aws rds describe-db-instances --db-instance-identifier ${{ secrets.DB_NAME }} --query "DBInstances[0].Endpoint.Address" --output text --region ${{ secrets.AWS_REGION }})
           echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+
+      - name: Describe CloudFormation Stack Events (on failure)
+        if: failure()
+        run: |
+          aws cloudformation describe-stack-events --stack-name mycinema-infrastructure
 
   backend:
     name: Build and Deploy Backend
