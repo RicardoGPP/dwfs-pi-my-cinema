@@ -110,7 +110,7 @@ jobs:
           docker push $IMAGE_URI:latest
 
       - name: Deploy to ECS
-        uses: aws-actions/aws-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ecs-task-definition.json
           service: mycinema-backend-service
