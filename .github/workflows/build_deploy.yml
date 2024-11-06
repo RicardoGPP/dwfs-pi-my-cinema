@@ -85,7 +85,7 @@ jobs:
 
       - name: Build Docker image with Quarkus
         run: |
-          IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
+          IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.AWS_ECR_REPOSITORY }}:latest"
           mvn package -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.image=$IMAGE \
             -f backend/pom.xml \
@@ -104,7 +104,6 @@ jobs:
 
       - name: Push Docker image to ECR
         run: |
-          IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
           docker push $IMAGE
 
   frontend:
