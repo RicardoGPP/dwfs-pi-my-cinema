@@ -24,6 +24,9 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Delete stack
+        run: aws cloudformation delete-stack --stack-name mycinema-infrastructure
+
       - name: Set up AWS CloudFormation Stack
         run: |
           aws cloudformation deploy \
