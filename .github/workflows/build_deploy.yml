@@ -111,6 +111,11 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
+      - name: Create ECR Repository if not exists
+        run: |
+          aws ecr describe-repositories --repository-names mycinema-backend --region ${{ secrets.AWS_REGION }} || \
+          aws ecr create-repository --repository-name mycinema-backend --region ${{ secrets.AWS_REGION }}
+
       - name: Push Docker image to ECR
         run: |
           IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
