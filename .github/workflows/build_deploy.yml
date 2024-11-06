@@ -90,8 +90,8 @@ jobs:
 
       - name: Build Docker image with Quarkus
         run: |
-          TAG="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
-          backend/mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
+          mvn package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$IMAGE_URI -f backend/pom.xml -DskipTests
 
       - name: Configure AWS CLI
         run: |
@@ -106,8 +106,8 @@ jobs:
 
       - name: Push Docker image to ECR
         run: |
-          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend"
-          docker push $IMAGE_URI:latest
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
+          docker push $IMAGE_URI
 
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
