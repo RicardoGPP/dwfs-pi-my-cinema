@@ -24,11 +24,6 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Delete stack
-        run: |
-          aws cloudformation delete-stack --stack-name mycinema-infrastructure
-          aws cloudformation wait stack-delete-complete --stack-name mycinema-infrastructure
-
       - name: Set up AWS CloudFormation Stack
         run: |
           aws cloudformation deploy \
@@ -45,7 +40,10 @@ jobs:
       - name: Obtain DB Host
         id: get-db-host
         run: |
-          DB_HOST=$(aws rds describe-db-instances --db-instance-identifier mycinema-db --query "DBInstances[0].Endpoint.Address" --output text --region ${{ secrets.AWS_REGION }})
+          DB_HOST=$(aws rds describe-db-instances \
+            --query "DBInstances[?DBName=='${{ secrets.DbName }}'].Endpoint.Address" \
+            --output text \
+            --region ${{ secrets.AWS_REGION }})
           echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
 
       - name: Describe CloudFormation Stack Events (on failure)
