@@ -138,6 +138,17 @@ jobs:
           cd infrastructure
           envsubst < ecs-task-definition-template.json > ecs-task-definition.json
 
+      - name: Create ECS Service if not exists
+        run: |
+          SERVICE_ARN=$(aws ecs describe-services --cluster mycinema-cluster --services mycinema-backend-service --query "services[0].serviceArn" --output text --region ${{ secrets.AWS_REGION }} || true)
+          if [ "$SERVICE_ARN" = "None" ]; then
+            aws ecs create-service --cluster mycinema-cluster --service-name mycinema-backend-service \
+              --task-definition mycinema-backend-task \
+              --desired-count 1 --launch-type EC2 --region ${{ secrets.AWS_REGION }}
+          else
+            echo "Service already exists: $SERVICE_ARN"
+          fi
+
       - name: Create ECS Cluster if not exists
         run: |
           CLUSTER_ARN=$(aws ecs describe-clusters --clusters mycinema-cluster --query "clusters[0].clusterArn" --output text --region ${{ secrets.AWS_REGION }} || true)
