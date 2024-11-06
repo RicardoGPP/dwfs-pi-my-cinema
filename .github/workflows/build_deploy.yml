@@ -1,19 +1,17 @@
 name: Build and Deploy MyCinema
 
 on:
+
   workflow_dispatch:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
+
   infrastructure:
     name: Set Up Infrastructure
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -44,17 +42,9 @@ jobs:
             --parameter-overrides \
               S3BucketName=${{ secrets.AWS_S3_BUCKET }} \
               ECRRepositoryName=${{ secrets.AWS_ECR_REPOSITORY }} \
-              ECSClusterName=${{ secrets.AWS_ECS_CLUSTER }} \
-              ECSServiceName=${{ secrets.AWS_ECS_SERVICE }} \
-              JwtSignKeyLocation=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
-              AdminEmail=${{ secrets.ADMIN_EMAIL }} \
-              AdminPassword=${{ secrets.ADMIN_PASSWORD }} \
-              DbPort=${{ secrets.DB_PORT }} \
               DbUser=${{ secrets.DB_USER }} \
               DbPassword=${{ secrets.DB_PASSWORD }} \
-              DbName=${{ secrets.DB_NAME }} \
-              TmdbApiKey=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
-              OpenaiApiKey=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
+              DbName=${{ secrets.DB_NAME }}
 
       - name: Obtain DB Host
         id: get-db-host
@@ -120,32 +110,6 @@ jobs:
         run: |
           IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
           docker push $IMAGE
-
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          service: ${{ secrets.AWS_ECS_SERVICE }}
-          cluster: ${{ secrets.AWS_ECS_CLUSTER }}
-          wait-for-service-stability: true
-        env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          JWT_SIGN_KEY_LOCATION: ${{ secrets.JWT_SIGN_KEY_LOCATION }}
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          DB_HOST: ${{ env.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-      - name: Get backend endpoint
-        id: get-backend-endpoint
-        run: |
-          BACKEND_URL=$(aws ecs describe-services --cluster mycinema-cluster --services mycinema-backend-service --query "services[0].loadBalancers[0].dnsName" --output text --region ${{ secrets.AWS_REGION }})
-          echo "BACKEND_API_URL=$BACKEND_URL" >> $GITHUB_ENV
 
   frontend:
     name: Build and Deploy Frontend

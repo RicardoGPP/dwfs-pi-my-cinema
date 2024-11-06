@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
+
   MyCinemaS3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
@@ -24,115 +25,8 @@ Resources:
     Properties:
       RepositoryName: !Ref ECRRepositoryName
 
-  MyCinemaECSCluster:
-    Type: 'AWS::ECS::Cluster'
-    Properties:
-      ClusterName: !Ref ECSClusterName
-
-  MyCinemaECSService:
-    Type: 'AWS::ECS::Service'
-    Properties:
-      Cluster: !Ref MyCinemaECSCluster
-      ServiceName: !Ref ECSServiceName
-      TaskDefinition: !Ref MyCinemaECSTaskDefinition
-      DesiredCount: 1
-      LaunchType: FARGATE
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          Subnets:
-            - subnet-xxxxxxxx
-          SecurityGroups:
-            - sg-xxxxxxxx
-          AssignPublicIp: ENABLED
-
-  MyCinemaECSTaskDefinition:
-    Type: 'AWS::ECS::TaskDefinition'
-    Properties:
-      Family: mycinema-backend-task
-      Cpu: '256'
-      Memory: '512'
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
-      ExecutionRoleArn: !GetAtt MyCinemaECSExecutionRole.Arn
-      TaskRoleArn: !GetAtt MyCinemaECSTaskRole.Arn
-      ContainerDefinitions:
-        - Name: mycinema-backend-container
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}:latest"
-          Essential: true
-          PortMappings:
-            - ContainerPort: 9080
-              Protocol: tcp
-          Environment:
-            - Name: JWT_SIGN_KEY_LOCATION
-              Value: !Ref JwtSignKeyLocation
-            - Name: ADMIN_EMAIL
-              Value: !Ref AdminEmail
-            - Name: ADMIN_PASSWORD
-              Value: !Ref AdminPassword
-            - Name: DB_HOST
-              Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
-            - Name: DB_PORT
-              Value: !Ref DbPort
-            - Name: DB_NAME
-              Value: !Ref DbName
-            - Name: DB_USER
-              Value: !Ref DbUser
-            - Name: DB_PASSWORD
-              Value: !Ref DbPassword
-            - Name: TMDB_API_KEY
-              Value: !Ref TmdbApiKey
-            - Name: OPENAI_API_KEY
-              Value: !Ref OpenaiApiKey
-
-  MyCinemaECSExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: MyCinemaECSExecutionPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'ecr:GetDownloadUrlForLayer'
-                  - 'ecr:BatchGetImage'
-                  - 'ecr:GetAuthorizationToken'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: '*'
-
-  MyCinemaECSTaskRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: MyCinemaECSTaskPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'rds:DescribeDBInstances'
-                  - 'secretsmanager:GetSecretValue'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: '*'
-
 Parameters:
+
   S3BucketName:
     Type: String
     Description: The name of the S3 bucket
@@ -140,31 +34,6 @@ Parameters:
   ECRRepositoryName:
     Type: String
     Description: The name of the ECR repository
-
-  ECSClusterName:
-    Type: String
-    Description: The name of the ECS cluster
-
-  ECSServiceName:
-    Type: String
-    Description: The name of the ECS service
-
-  JwtSignKeyLocation:
-    Type: String
-    Description: The location of the JWT signing key
-
-  AdminEmail:
-    Type: String
-    Description: The admin email address
-
-  AdminPassword:
-    Type: String
-    Description: The admin password
-    NoEcho: true
-
-  DbPort:
-    Type: String
-    Description: The port of the RDS database
 
   DbUser:
     Type: String
@@ -179,15 +48,8 @@ Parameters:
     Type: String
     Description: The name of the RDS database
 
-  TmdbApiKey:
-    Type: String
-    Description: The TMDB API key
-
-  OpenaiApiKey:
-    Type: String
-    Description: The OpenAI API key
-
 Outputs:
+
   S3Bucket:
     Description: The name of the S3 bucket
     Value: !Ref MyCinemaS3Bucket
@@ -200,10 +62,6 @@ Outputs:
     Description: The URI of the ECR repository
     Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}"
 
-  ECSClusterName:
-    Description: The name of the ECS cluster
-    Value: !Ref MyCinemaECSCluster
-
-  ECSServiceName:
-    Description: The name of the ECS service
-    Value: !Ref MyCinemaECSService
+  EC2PublicIP:
+    Description: The public IP address of the EC2 instance
+    Value: !GetAtt MyCinemaEC2Instance.PublicIp
