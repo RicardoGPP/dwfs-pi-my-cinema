@@ -1,11 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
-
 Resources:
+  MyCinemaS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref S3BucketName
+      DeletionPolicy: Delete
+
   MyCinemaRDSInstance:
-    Type: AWS::RDS::DBInstance
+    Type: 'AWS::RDS::DBInstance'
     Properties:
       DBInstanceIdentifier: mycinema-db
-      AllocatedStorage: 20
+      AllocatedStorage: '20'
       DBInstanceClass: db.t3.micro
       Engine: postgres
       MasterUsername: !Ref DBMasterUsername
@@ -13,27 +18,31 @@ Resources:
       DBName: !Ref DBName
       BackupRetentionPeriod: 7
       PubliclyAccessible: false
-
-  MyCinemaS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Ref S3BucketName
-      AccessControl: PublicRead
+    DeletionPolicy: Retain
 
 Parameters:
   DBMasterUsername:
     Type: String
-    Description: The master username for the RDS instance
+    Description: The master username for the RDS database
 
   DBMasterUserPassword:
     Type: String
-    Description: The master user password for the RDS instance
+    Description: The master password for the RDS database
     NoEcho: true
 
   DBName:
     Type: String
-    Description: The name of the database
+    Description: The name of the RDS database
 
   S3BucketName:
     Type: String
-    Description: The name of the S3 bucket for storing frontend assets
+    Description: The name of the S3 bucket
+
+Outputs:
+  S3Bucket:
+    Description: The name of the S3 bucket
+    Value: !Ref MyCinemaS3Bucket
+
+  RDSInstanceEndpoint:
+    Description: The endpoint address of the RDS instance
+    Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
