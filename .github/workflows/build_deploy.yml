@@ -50,7 +50,7 @@ jobs:
       - name: Obtain DB Host
         id: get-db-host
         run: |
-          DB_HOST=$(aws rds describe-db-instances --db-instance-identifier ${{ secrets.DB_NAME }} --query "DBInstances[0].Endpoint.Address" --output text --region ${{ secrets.AWS_REGION }})
+          DB_HOST=$(aws rds describe-db-instances --db-instance-identifier mycinema-db --query "DBInstances[0].Endpoint.Address" --output text --region ${{ secrets.AWS_REGION }})
           echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
 
       - name: Describe CloudFormation Stack Events (on failure)
