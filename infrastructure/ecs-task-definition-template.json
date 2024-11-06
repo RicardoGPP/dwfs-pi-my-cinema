@@ -1,0 +1,60 @@
+ {
+  "family": "mycinema-backend-task",
+  "containerDefinitions": [
+    {
+      "name": "mycinema-backend",
+      "image": "<IMAGE>",
+      "essential": true,
+      "memory": 512,
+      "cpu": 256,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080
+        }
+      ],
+      "environment": [
+        {
+          "name": "JWT_SIGN_KEY_LOCATION",
+          "value": "${JWT_SIGN_KEY_LOCATION}"
+        },
+        {
+          "name": "ADMIN_EMAIL",
+          "value": "${ADMIN_EMAIL}"
+        },
+        {
+          "name": "ADMIN_PASSWORD",
+          "value": "${ADMIN_PASSWORD}"
+        },
+        {
+          "name": "DB_HOST",
+          "value": "${DB_HOST}"
+        },
+        {
+          "name": "DB_PORT",
+          "value": "${DB_PORT}"
+        },
+        {
+          "name": "DB_NAME",
+          "value": "${DB_NAME}"
+        },
+        {
+          "name": "DB_USER",
+          "value": "${DB_USER}"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "value": "${DB_PASSWORD}"
+        },
+        {
+          "name": "TMDB_API_KEY",
+          "value": "${TMDB_API_KEY}"
+        },
+        {
+          "name": "OPENAI_API_KEY",
+          "value": "${OPENAI_API_KEY}"
+        }
+      ]
+    }
+  ]
+}

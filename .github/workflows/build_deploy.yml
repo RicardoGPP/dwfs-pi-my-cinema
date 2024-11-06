@@ -121,10 +121,16 @@ jobs:
           IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
           docker push $IMAGE
 
+      - name: Register ECS Task Definition
+        run: |
+          IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
+          cd infrastructure
+          sed 's|<IMAGE>|'${IMAGE}'|g' ecs-task-definition-template.json > ecs-task-definition.json
+
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ecs-task-definition.json
+          task-definition: infrastructure/ecs-task-definition.json
           service: mycinema-backend-service
           cluster: mycinema-cluster
           wait-for-service-stability: true
