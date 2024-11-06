@@ -91,7 +91,7 @@ jobs:
       - name: Build Docker image with Quarkus
         run: |
           TAG="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
-          ./mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+          backend/mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 
       - name: Configure AWS CLI
         run: |
