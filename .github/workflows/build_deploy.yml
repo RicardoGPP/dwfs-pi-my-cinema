@@ -24,7 +24,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Delete CloudFormation Stack if in ROLLBACK_COMPLETE or ROLLBACK_FAILED
+      - name: Delete stack
         run: |
           aws cloudformation delete-stack --stack-name mycinema-infrastructure
           aws cloudformation wait stack-delete-complete --stack-name mycinema-infrastructure

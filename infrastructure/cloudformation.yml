@@ -18,6 +18,7 @@ Resources:
       MasterUserPassword: !Ref DbPassword
       DBName: !Ref DbName
       PubliclyAccessible: false
+      AllocatedStorage: 20
     DeletionPolicy: Retain
 
   MyCinemaECRRepository:
