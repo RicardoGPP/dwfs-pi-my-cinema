@@ -11,7 +11,6 @@ Resources:
   MyCinemaRDSInstance:
     Type: 'AWS::RDS::DBInstance'
     Properties:
-      DBInstanceIdentifier: mycinema-db
       DBInstanceClass: db.t4g.micro
       Engine: postgres
       MasterUsername: !Ref DbUser
