@@ -121,32 +121,37 @@ jobs:
           IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
           docker push $IMAGE
 
-      - name: Register ECS Task Definition
+      - name: Create ECS task definition based on template
         run: |
-          IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
+          export AWS_REGION=${{ secrets.AWS_REGION }}
+          export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+          export JWT_SIGN_KEY_LOCATION=${{ secrets.JWT_SIGN_KEY_LOCATION }}
+          export ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          export ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+          export DB_HOST=${{ env.DB_HOST }}
+          export DB_PORT=${{ secrets.DB_PORT }}
+          export DB_NAME=${{ secrets.DB_NAME }}
+          export DB_USER=${{ secrets.DB_USER }}
+          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          export TMDB_API_KEY=${{ secrets.TMDB_API_KEY }}
+          export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
           cd infrastructure
-          sed 's|<IMAGE>|'${IMAGE}'|g' ecs-task-definition-template.json > ecs-task-definition.json
+          envsubst < ecs-task-definition-template.json > ecs-task-definition.json
+          cat ecs-task-definition.json
+
+      - name: Register ECS task definition
+        run: |
+          aws ecs register-task-definition --cli-input-json file://infrastructure/ecs-task-definition.json
 
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: infrastructure/ecs-task-definition.json
+          task-definition: mycinema-backend-task
           service: mycinema-backend-service
           cluster: mycinema-cluster
           wait-for-service-stability: true
-        env:
-          JWT_SIGN_KEY_LOCATION: ${{ secrets.JWT_SIGN_KEY_LOCATION }}
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          DB_HOST: ${{ env.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      - name: Obtain Backend Endpoint
+      - name: Get backend endpoint
         id: get-backend-endpoint
         run: |
           BACKEND_URL=$(aws ecs describe-services --cluster mycinema-cluster --services mycinema-backend-service --query "services[0].loadBalancers[0].dnsName" --output text --region ${{ secrets.AWS_REGION }})

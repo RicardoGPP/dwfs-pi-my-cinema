@@ -1,18 +1,19 @@
- {
+{
   "family": "mycinema-backend-task",
   "containerDefinitions": [
     {
-      "name": "mycinema-backend",
-      "image": "<IMAGE>",
-      "essential": true,
+      "name": "mycinema-backend-container",
+      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mycinema-backend:latest",
       "memory": 512,
       "cpu": 256,
       "portMappings": [
         {
-          "containerPort": 8080,
-          "hostPort": 8080
+          "containerPort": 9080,
+          "hostPort": 9080,
+          "protocol": "tcp"
         }
       ],
+      "essential": true,
       "environment": [
         {
           "name": "JWT_SIGN_KEY_LOCATION",
@@ -54,7 +55,15 @@
           "name": "OPENAI_API_KEY",
           "value": "${OPENAI_API_KEY}"
         }
-      ]
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mycinema-backend",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
     }
   ]
 }
