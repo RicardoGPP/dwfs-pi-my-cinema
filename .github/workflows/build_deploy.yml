@@ -138,10 +138,14 @@ jobs:
           cd infrastructure
           envsubst < ecs-task-definition-template.json > ecs-task-definition.json
 
-      - name: Create ECS cluster if not exists
+      - name: Create ECS Cluster if not exists
         run: |
-          aws ecs describe-clusters --clusters mycinema-cluster --region ${{ secrets.AWS_REGION }} || \
-          aws ecs create-cluster --cluster-name mycinema-cluster --region ${{ secrets.AWS_REGION }}
+          CLUSTER_ARN=$(aws ecs describe-clusters --clusters mycinema-cluster --query "clusters[0].clusterArn" --output text --region ${{ secrets.AWS_REGION }} || true)
+          if [ "$CLUSTER_ARN" = "None" ]; then
+            aws ecs create-cluster --cluster-name mycinema-cluster --region ${{ secrets.AWS_REGION }}
+          else
+            echo "Cluster already exists: $CLUSTER_ARN"
+          fi
 
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
