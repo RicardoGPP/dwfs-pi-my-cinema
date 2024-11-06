@@ -90,11 +90,17 @@ jobs:
 
       - name: Build Docker image with Quarkus
         run: |
-          mvn package -Dquarkus.container-image.build=true \
+          mvn package \
+            -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.registry=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com \
             -Dquarkus.container-image.name=mycinema-backend \
             -Dquarkus.container-image.tag=latest \
-            -f backend/pom.xml -DskipTests
+            -f backend/pom.xml \
+            -DskipTests
+
+      - name: List Docker images
+        run: |
+          docker images
 
       - name: Configure AWS CLI
         run: |
