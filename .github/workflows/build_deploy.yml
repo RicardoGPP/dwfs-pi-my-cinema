@@ -18,27 +18,30 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up AWS CloudFormation Stack
-        uses: aws-actions/aws-cli-action@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          command: |
-            aws cloudformation deploy \
-              --stack-name mycinema-infrastructure \
-              --template-file infrastructure/cloudformation.yml \
-              --capabilities CAPABILITY_NAMED_IAM \
-              --parameter-overrides \
-                DBMasterUsername=${{ secrets.DB_USER }} \
-                DBMasterUserPassword=${{ secrets.DB_PASSWORD }} \
-                DBName=${{ secrets.DB_NAME }} \
-                S3BucketName=${{ secrets.AWS_S3_BUCKET }}
+        run: |
+          aws cloudformation deploy \
+            --stack-name mycinema-infrastructure \
+            --template-file infrastructure/cloudformation.yml \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+              DBMasterUsername=${{ secrets.DB_USER }} \
+              DBMasterUserPassword=${{ secrets.DB_PASSWORD }} \
+              DBName=${{ secrets.DB_NAME }} \
+              S3BucketName=${{ secrets.AWS_S3_BUCKET }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Obtain DB Host
         id: get-db-host
         run: |
           DB_HOST=$(aws rds describe-db-instances --db-instance-identifier ${{ secrets.DB_NAME }} --query "DBInstances[0].Endpoint.Address" --output text --region ${{ secrets.AWS_REGION }})
           echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
   backend:
     name: Build and Deploy Backend
@@ -99,7 +102,7 @@ jobs:
           cluster: mycinema-cluster
           wait-for-service-stability: true
         env:
-          JWT_SIGN_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+          JWT_SIGN_KEY_LOCATION: ${{ secrets.JWT_SIGN_KEY_LOCATION }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           DB_HOST: ${{ env.DB_HOST }}
@@ -115,6 +118,10 @@ jobs:
         run: |
           BACKEND_URL=$(aws ecs describe-services --cluster mycinema-cluster --services mycinema-backend-service --query "services[0].loadBalancers[0].dnsName" --output text --region ${{ secrets.AWS_REGION }})
           echo "BACKEND_API_URL=$BACKEND_URL" >> $GITHUB_ENV
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
   frontend:
     name: Build and Deploy Frontend
