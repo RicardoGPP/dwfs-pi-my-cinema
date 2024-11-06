@@ -1,5 +1,4 @@
 AWSTemplateFormatVersion: '2010-09-09'
-
 Resources:
   MyCinemaS3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -13,9 +12,9 @@ Resources:
       DBInstanceIdentifier: mycinema-db
       DBInstanceClass: db.t4g.micro
       Engine: postgres
-      MasterUsername: !Ref DBMasterUsername
-      MasterUserPassword: !Ref DBMasterUserPassword
-      DBName: !Ref DBName
+      MasterUsername: !Ref DbUser
+      MasterUserPassword: !Ref DbPassword
+      DBName: !Ref DbName
       PubliclyAccessible: false
     DeletionPolicy: Retain
 
@@ -54,6 +53,7 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
+      ExecutionRoleArn: !GetAtt MyCinemaECSExecutionRole.Arn
       ContainerDefinitions:
         - Name: mycinema-backend-container
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}:latest"
@@ -61,21 +61,53 @@ Resources:
           PortMappings:
             - ContainerPort: 9080
               Protocol: tcp
+          Environment:
+            - Name: JWT_SIGN_KEY_LOCATION
+              Value: !Ref JwtSignKeyLocation
+            - Name: ADMIN_EMAIL
+              Value: !Ref AdminEmail
+            - Name: ADMIN_PASSWORD
+              Value: !Ref AdminPassword
+            - Name: DB_HOST
+              Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
+            - Name: DB_PORT
+              Value: !Ref DbPort
+            - Name: DB_NAME
+              Value: !Ref DbName
+            - Name: DB_USER
+              Value: !Ref DbUser
+            - Name: DB_PASSWORD
+              Value: !Ref DbPassword
+            - Name: TMDB_API_KEY
+              Value: !Ref TmdbApiKey
+            - Name: OPENAI_API_KEY
+              Value: !Ref OpenaiApiKey
+
+  MyCinemaECSExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: MyCinemaECSExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ecr:GetDownloadUrlForLayer'
+                  - 'ecr:BatchGetImage'
+                  - 'ecr:GetAuthorizationToken'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
 
 Parameters:
-  DBMasterUsername:
-    Type: String
-    Description: The master username for the RDS database
-
-  DBMasterUserPassword:
-    Type: String
-    Description: The master password for the RDS database
-    NoEcho: true
-
-  DBName:
-    Type: String
-    Description: The name of the RDS database
-
   S3BucketName:
     Type: String
     Description: The name of the S3 bucket
@@ -91,6 +123,44 @@ Parameters:
   ECSServiceName:
     Type: String
     Description: The name of the ECS service
+
+  JwtSignKeyLocation:
+    Type: String
+    Description: The location of the JWT signing key
+
+  AdminEmail:
+    Type: String
+    Description: The admin email address
+
+  AdminPassword:
+    Type: String
+    Description: The admin password
+    NoEcho: true
+
+  DbPort:
+    Type: String
+    Description: The port of the RDS database
+
+  DbUser:
+    Type: String
+    Description: The user of the RDS database
+
+  DbPassword:
+    Type: String
+    Description: The password of the RDS database
+    NoEcho: true
+
+  DBName:
+    Type: String
+    Description: The name of the RDS database
+
+  TmdbApiKey:
+    Type: String
+    Description: The TMDB API key
+
+  OpenaiApiKey:
+    Type: String
+    Description: The OpenAI API key
 
 Outputs:
   S3Bucket:

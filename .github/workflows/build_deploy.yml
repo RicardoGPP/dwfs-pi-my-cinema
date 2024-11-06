@@ -42,13 +42,19 @@ jobs:
             --template-file infrastructure/cloudformation.yml \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
-              DBMasterUsername=${{ secrets.DB_USER }} \
-              DBMasterUserPassword=${{ secrets.DB_PASSWORD }} \
-              DBName=${{ secrets.DB_NAME }} \
               S3BucketName=${{ secrets.AWS_S3_BUCKET }} \
               ECRRepositoryName=${{ secrets.AWS_ECR_REPOSITORY }} \
               ECSClusterName=${{ secrets.AWS_ECS_CLUSTER }} \
-              ECSServiceName=${{ secrets.AWS_ECS_SERVICE }}
+              ECSServiceName=${{ secrets.AWS_ECS_SERVICE }} \
+              JwtSignKeyLocation=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
+              AdminEmail=${{ secrets.ADMIN_EMAIL }} \
+              AdminPassword=${{ secrets.ADMIN_PASSWORD }} \
+              DbPort=${{ secrets.DB_PORT }} \
+              DbUser=${{ secrets.DB_USER }} \
+              DbPassword=${{ secrets.DB_PASSWORD }} \
+              DbName=${{ secrets.DB_NAME }} \
+              TmdbApiKey=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
+              OpenaiApiKey=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
 
       - name: Obtain DB Host
         id: get-db-host
