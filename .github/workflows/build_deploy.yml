@@ -144,7 +144,7 @@ jobs:
           if [ "$SERVICE_ARN" = "None" ]; then
             aws ecs create-service --cluster mycinema-cluster --service-name mycinema-backend-service \
               --task-definition mycinema-backend-task \
-              --desired-count 1 --launch-type EC2 --region ${{ secrets.AWS_REGION }}
+              --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[subnet-xxxxxxxx],securityGroups=[sg-xxxxxxxx],assignPublicIp=ENABLED}" --region ${{ secrets.AWS_REGION }}
           else
             echo "Service already exists: $SERVICE_ARN"
           fi
