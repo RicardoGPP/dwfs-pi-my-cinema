@@ -25,7 +25,9 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Delete stack
-        run: aws cloudformation delete-stack --stack-name mycinema-infrastructure
+        run: |
+          aws cloudformation delete-stack --stack-name mycinema-infrastructure
+          aws cloudformation wait stack-delete-complete --stack-name mycinema-infrastructure
 
       - name: Set up AWS CloudFormation Stack
         run: |
