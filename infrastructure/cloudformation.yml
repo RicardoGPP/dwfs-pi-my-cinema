@@ -150,7 +150,7 @@ Parameters:
     Description: The password of the RDS database
     NoEcho: true
 
-  DBName:
+  DbName:
     Type: String
     Description: The name of the RDS database
 
