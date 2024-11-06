@@ -45,7 +45,10 @@ jobs:
               DBMasterUsername=${{ secrets.DB_USER }} \
               DBMasterUserPassword=${{ secrets.DB_PASSWORD }} \
               DBName=${{ secrets.DB_NAME }} \
-              S3BucketName=${{ secrets.AWS_S3_BUCKET }}
+              S3BucketName=${{ secrets.AWS_S3_BUCKET }} \
+              ECRRepositoryName=${{ secrets.AWS_ECR_REPOSITORY }} \
+              ECSClusterName=${{ secrets.AWS_ECS_CLUSTER }} \
+              ECSServiceName=${{ secrets.AWS_ECS_SERVICE }}
 
       - name: Obtain DB Host
         id: get-db-host
@@ -83,7 +86,7 @@ jobs:
       - name: Build with Maven
         run: mvn clean install --file backend/pom.xml -DskipTests
 
-      - name: Create JWT private key file
+      - name: Create privateKey.pem file
         run: |
           mkdir -p backend/src/main/resources/META-INF/resources
           echo "${{ secrets.JWT_SIGN_KEY }}" > backend/src/main/resources/META-INF/resources/privateKey.pem
@@ -96,10 +99,6 @@ jobs:
             -f backend/pom.xml \
             -DskipTests
 
-      - name: List Docker images
-        run: |
-          docker images
-
       - name: Configure AWS CLI
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -111,59 +110,16 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
-      - name: Create ECR repository if not exists
-        run: |
-          aws ecr describe-repositories --repository-names mycinema-backend --region ${{ secrets.AWS_REGION }} || \
-          aws ecr create-repository --repository-name mycinema-backend --region ${{ secrets.AWS_REGION }}
-
       - name: Push Docker image to ECR
         run: |
           IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/mycinema-backend:latest"
           docker push $IMAGE
 
-      - name: Create ECS task definition based on template
-        run: |
-          export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
-          export AWS_REGION=${{ secrets.AWS_REGION }}
-          export JWT_SIGN_KEY_LOCATION=${{ secrets.JWT_SIGN_KEY_LOCATION }}
-          export ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
-          export ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
-          export DB_HOST=${{ env.DB_HOST }}
-          export DB_PORT=${{ secrets.DB_PORT }}
-          export DB_NAME=${{ secrets.DB_NAME }}
-          export DB_USER=${{ secrets.DB_USER }}
-          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          export TMDB_API_KEY=${{ secrets.TMDB_API_KEY }}
-          export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-          cd infrastructure
-          envsubst < ecs-task-definition-template.json > ecs-task-definition.json
-
-      - name: Create ECS Service if not exists
-        run: |
-          SERVICE_ARN=$(aws ecs describe-services --cluster mycinema-cluster --services mycinema-backend-service --query "services[0].serviceArn" --output text --region ${{ secrets.AWS_REGION }} || true)
-          if [ "$SERVICE_ARN" = "None" ]; then
-            aws ecs create-service --cluster mycinema-cluster --service-name mycinema-backend-service \
-              --task-definition mycinema-backend-task \
-              --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[subnet-xxxxxxxx],securityGroups=[sg-xxxxxxxx],assignPublicIp=ENABLED}" --region ${{ secrets.AWS_REGION }}
-          else
-            echo "Service already exists: $SERVICE_ARN"
-          fi
-
-      - name: Create ECS Cluster if not exists
-        run: |
-          CLUSTER_ARN=$(aws ecs describe-clusters --clusters mycinema-cluster --query "clusters[0].clusterArn" --output text --region ${{ secrets.AWS_REGION }} || true)
-          if [ "$CLUSTER_ARN" = "None" ]; then
-            aws ecs create-cluster --cluster-name mycinema-cluster --region ${{ secrets.AWS_REGION }}
-          else
-            echo "Cluster already exists: $CLUSTER_ARN"
-          fi
-
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: infrastructure/ecs-task-definition.json
-          service: mycinema-backend-service
-          cluster: mycinema-cluster
+          service: ${{ secrets.AWS_ECS_SERVICE }}
+          cluster: ${{ secrets.AWS_ECS_CLUSTER }}
           wait-for-service-stability: true
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}

@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+
 Resources:
   MyCinemaS3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -18,6 +19,49 @@ Resources:
       PubliclyAccessible: false
     DeletionPolicy: Retain
 
+  MyCinemaECRRepository:
+    Type: 'AWS::ECR::Repository'
+    Properties:
+      RepositoryName: !Ref ECRRepositoryName
+
+  MyCinemaECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: !Ref ECSClusterName
+
+  MyCinemaECSService:
+    Type: 'AWS::ECS::Service'
+    Properties:
+      Cluster: !Ref MyCinemaECSCluster
+      ServiceName: !Ref ECSServiceName
+      TaskDefinition: !Ref MyCinemaECSTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets:
+            - subnet-xxxxxxxx
+          SecurityGroups:
+            - sg-xxxxxxxx
+          AssignPublicIp: ENABLED
+
+  MyCinemaECSTaskDefinition:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: mycinema-backend-task
+      Cpu: '256'
+      Memory: '512'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ContainerDefinitions:
+        - Name: mycinema-backend-container
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}:latest"
+          Essential: true
+          PortMappings:
+            - ContainerPort: 9080
+              Protocol: tcp
+
 Parameters:
   DBMasterUsername:
     Type: String
@@ -36,6 +80,18 @@ Parameters:
     Type: String
     Description: The name of the S3 bucket
 
+  ECRRepositoryName:
+    Type: String
+    Description: The name of the ECR repository
+
+  ECSClusterName:
+    Type: String
+    Description: The name of the ECS cluster
+
+  ECSServiceName:
+    Type: String
+    Description: The name of the ECS service
+
 Outputs:
   S3Bucket:
     Description: The name of the S3 bucket
@@ -44,3 +100,15 @@ Outputs:
   RDSInstanceEndpoint:
     Description: The endpoint address of the RDS instance
     Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
+
+  ECRRepositoryUri:
+    Description: The URI of the ECR repository
+    Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}"
+
+  ECSClusterName:
+    Description: The name of the ECS cluster
+    Value: !Ref MyCinemaECSCluster
+
+  ECSServiceName:
+    Description: The name of the ECS service
+    Value: !Ref MyCinemaECSService
