@@ -165,7 +165,7 @@ jobs:
       - name: Deploy to S3
         uses: aws-actions/s3-sync-action@v3.1.0
         with:
-          args: --acl public-read --delete
+          args: --delete
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
