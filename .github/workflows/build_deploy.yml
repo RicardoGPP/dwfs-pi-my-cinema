@@ -22,12 +22,14 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up AWS CloudFormation Stack
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile default
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile default
+          aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }} --profile default
           aws configure set region ${{ secrets.AWS_REGION }} --profile default
           aws cloudformation deploy \
             --stack-name mycinema-infrastructure \
