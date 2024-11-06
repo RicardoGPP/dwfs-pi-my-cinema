@@ -61,7 +61,3 @@ Outputs:
   ECRRepositoryUri:
     Description: The URI of the ECR repository
     Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}"
-
-  EC2PublicIP:
-    Description: The public IP address of the EC2 instance
-    Value: !GetAtt MyCinemaEC2Instance.PublicIp
