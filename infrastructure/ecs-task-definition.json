@@ -16,6 +16,14 @@
       "essential": true,
       "environment": [
         {
+          "name": "AWS_ACCOUNT_ID",
+          "value": "${AWS_ACCOUNT_ID}"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "${AWS_REGION}"
+        },
+        {
           "name": "JWT_SIGN_KEY_LOCATION",
           "value": "${JWT_SIGN_KEY_LOCATION}"
         },
