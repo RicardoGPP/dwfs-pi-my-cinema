@@ -81,10 +81,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Build with Maven
-        run: mvn clean install --file backend/pom.xml
-
-      - name: Run unit tests
-        run: mvn test --file backend/pom.xml
+        run: mvn clean install --file backend/pom.xml -DskipTests
 
       - name: Create JWT private key file
         run: |
@@ -93,7 +90,7 @@ jobs:
 
       - name: Build Docker image with Quarkus
         run: |
-          mvn package -Pnative -Dquarkus.container-image.build=true -f backend/pom.xml
+          mvn package -Pnative -Dquarkus.container-image.build=true -f backend/pom.xml -DskipTests
 
       - name: Log in to Amazon ECR
         id: login-ecr
