@@ -26,6 +26,15 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Delete CloudFormation Stack if in ROLLBACK_COMPLETE
+        run: |
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].StackStatus" --output text || true)
+          if [ "$STACK_STATUS" = "ROLLBACK_COMPLETE" ]; then
+            aws cloudformation delete-stack --stack-name mycinema-infrastructure
+            echo "Stack in ROLLBACK_COMPLETE state deleted. Waiting for deletion to complete..."
+            aws cloudformation wait stack-delete-complete --stack-name mycinema-infrastructure
+          fi
+
       - name: Set up AWS CloudFormation Stack
         run: |
           aws cloudformation deploy \
