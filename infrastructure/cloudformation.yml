@@ -56,6 +56,10 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: S3_BUCKET
           Value: !Ref MyCinemaS3Bucket
+      CreationPolicy:
+        ResourceSignal:
+          Count: 1
+          Timeout: PT15M
 
 Parameters:
 
