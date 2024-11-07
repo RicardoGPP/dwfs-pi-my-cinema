@@ -20,11 +20,6 @@ Resources:
       AllocatedStorage: 20
     DeletionPolicy: Retain
 
-  MyCinemaECRRepository:
-    Type: 'AWS::ECR::Repository'
-    Properties:
-      RepositoryName: !Ref ECRRepositoryName
-
   MyCinemaElasticBeanstalkApplication:
     Type: AWS::ElasticBeanstalk::Application
     Properties:
@@ -69,10 +64,6 @@ Parameters:
   S3BucketName:
     Type: String
     Description: The name of the S3 bucket
-
-  ECRRepositoryName:
-    Type: String
-    Description: The name of the ECR repository
 
   DbUser:
     Type: String
