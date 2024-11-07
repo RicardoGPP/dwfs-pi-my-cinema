@@ -122,14 +122,17 @@ jobs:
         run: |
           aws s3 cp backend/target/mycinema-1.0.0-SNAPSHOT.jar s3://${{ secrets.AWS_S3_BUCKET }}/mycinema-backend.jar
 
+      # Generates a dynamic version label.
+      - name: Generate dynamic version label
+        run: echo "VERSION_LABEL=mycinema-backend-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
       # Creates a new EB backend environment application version.
       - name: Create EB backend environment application version
         run: |
           aws elasticbeanstalk create-application-version \
             --application-name MyCinema \
-            --version-label "latest" \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=mycinema-backend.jar \
-            --auto-create-application --force
+            --version-label "${{ env.VERSION_LABEL }}" \
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=mycinema-backend.jar
 
       # Updates EB backend environment with new application version.
       - name: Update EB backend environment
@@ -137,7 +140,7 @@ jobs:
           aws elasticbeanstalk update-environment \
             --application-name MyCinema \
             --environment-name MyCinemaBackend \
-            --version-label "latest"
+            --version-label "${{ env.VERSION_LABEL }}"
 
       # Shows EB backend environment information.
       - name: Show EB backend environment information
