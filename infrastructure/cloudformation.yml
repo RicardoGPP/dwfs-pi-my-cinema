@@ -53,12 +53,12 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
           Value: t2.micro
-        - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: IamInstanceProfile
-          Value: aws-elasticbeanstalk-ec2-role
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: S3_BUCKET
           Value: !Ref MyCinemaS3Bucket
+        - Namespace: aws:elasticbeanstalk:environment:process:default,
+          OptionName: HealthCheckPath,
+          Value: /health
 
 Parameters:
 
