@@ -132,9 +132,7 @@ jobs:
 
       # Uploads zipped artifact to S3.
       - name: Upload zipped artifact to S3
-        run: |
-          cd backend/target/quarkus-app
-          aws s3 cp --recursive backend.zip s3://${{ secrets.AWS_S3_BUCKET }}/backend.zip
+        run: aws s3 cp --recursive backend/target/quarkus-app/backend.zip s3://${{ secrets.AWS_S3_BUCKET }}/backend.zip
 
       # Generates a dynamic version label.
       - name: Generate dynamic version label
@@ -194,9 +192,7 @@ jobs:
 
       # Uploads build artifact to S3.
       - name: Upload build artifact to S3
-        run: |
-          cd frontend
-          aws s3 cp --recursive frontend.zip s3://${{ secrets.AWS_S3_BUCKET }}/frontend.zip
+        run: aws s3 cp --recursive frontend/frontend.zip s3://${{ secrets.AWS_S3_BUCKET }}/frontend.zip
 
       # Generates a dynamic version label.
       - name: Generate dynamic version label
