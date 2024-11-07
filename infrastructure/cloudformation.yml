@@ -50,14 +50,14 @@ Resources:
     Properties:
       Path: "/"
       Roles:
-        - AWSServiceRoleForElasticBeanstalk
+        - LabRole
 
   MyCinemaFrontendInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: "/"
       Roles:
-        - AWSServiceRoleForElasticBeanstalk
+        - LabRole
 
   MyCinemaBackendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment

@@ -56,6 +56,7 @@ jobs:
             --stack-name mycinema-infrastructure \
             --template-file infrastructure/cloudformation.yml \
             --capabilities CAPABILITY_NAMED_IAM \
+            --debug \
             --parameter-overrides \
               S3BucketName=${{ secrets.AWS_S3_BUCKET }} \
               DbUser=${{ secrets.DB_USER }} \
