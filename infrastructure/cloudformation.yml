@@ -25,6 +25,30 @@ Resources:
     Properties:
       RepositoryName: !Ref ECRRepositoryName
 
+  MyCinemaElasticBeanstalkApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: MyCinemaApplication
+      Description: "Application for MyCinema"
+
+  MyCinemaElasticBeanstalkEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      EnvironmentName: MyCinemaEnvironment
+      ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
+      SolutionStackName: "64bit Amazon Linux 2 v3.3.6 running Docker"
+      OptionSettings:
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t2.micro
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: S3_BUCKET
+          Value: !Ref MyCinemaS3Bucket
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_HOST
+          Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
+      VersionLabel: "latest"
+
 Parameters:
 
   S3BucketName:
@@ -61,3 +85,7 @@ Outputs:
   ECRRepositoryUri:
     Description: The URI of the ECR repository
     Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}"
+
+  ElasticBeanstalkEnvironmentURL:
+    Description: The URL of the Elastic Beanstalk environment
+    Value: !GetAtt MyCinemaElasticBeanstalkEnvironment.EndpointURL
