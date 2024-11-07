@@ -116,25 +116,15 @@ jobs:
 
       # Builds the application.
       - name: Build
-        run: mvn clean install --file backend/pom.xml -DskipTests
-
-      # Creates Procfile.
-      - name: Create Procfile
         run: |
-          cd backend/target/quarkus-app
-          echo "web: java -jar quarkus-run.jar" > Procfile
+          cd backend
+          mvn clean install -Dquarkus.package.type=uber-jar -DskipTests
 
-      # Zips artifact.
-      - name: Zip artifact
+      # Uploads artifact to S3.
+      - name: Upload artifact to S3
         run: |
-          cd backend/target/quarkus-app
-          zip -r backend.zip .
-
-      # Uploads zipped artifact to S3.
-      - name: Upload zipped artifact to S3
-        run: |
-          cd backend/target/quarkus-app
-          aws s3 cp backend.zip s3://${{ secrets.AWS_S3_BUCKET }}/backend.zip
+          cd backend/target
+          aws s3 cp mycinema-1.0.0-SNAPSHOT-runner.jar s3://${{ secrets.AWS_S3_BUCKET }}/backend.jar
 
       # Generates a dynamic version label.
       - name: Generate dynamic version label
@@ -146,7 +136,7 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application-name MyCinema \
             --version-label "${{ env.VERSION_LABEL }}" \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=backend.zip
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=backend.jar
 
       # Updates EB backend environment with new application version.
       - name: Update EB backend environment
