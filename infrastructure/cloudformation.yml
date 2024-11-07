@@ -19,7 +19,7 @@ Parameters:
     Description: The password of the admin user
 
   DbPort:
-    type: String
+    Type: String
     Description: The port of the RDS database
 
   DbName:
