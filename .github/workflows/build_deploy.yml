@@ -115,12 +115,12 @@ jobs:
 
       # Builds application.
       - name: Build
-        run: mvn clean install --file backend/pom.xml -DskipTests -Dquarkus.package.output-name=mycinema-backend
+        run: mvn clean install --file backend/pom.xml -DskipTests
 
       # Uploads build artifact (JAR) to S3.
       - name: Upload JAR to S3
         run: |
-          aws s3 cp backend/target/mycinema-backend.jar s3://${{ secrets.AWS_S3_BUCKET }}/mycinema-backend.jar
+          aws s3 cp backend/target/mycinema-1.0.0-SNAPSHOT.jar s3://${{ secrets.AWS_S3_BUCKET }}/mycinema-backend.jar
 
       # Creates a new EB backend environment application version.
       - name: Create EB backend environment application version
