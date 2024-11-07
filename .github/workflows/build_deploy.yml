@@ -173,9 +173,8 @@ jobs:
       # Gets backend and frontend URLs.
       - name: Get backend and frontend URLs
         run: |
-          outputs=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs" --output json)
-          backend_url=$(echo $outputs | jq -r '.[] | select(.OutputKey=="BackendURL") | .OutputValue')
-          frontend_url=$(echo $outputs | jq -r '.[] | select(.OutputKey=="FrontendURL") | .OutputValue')
+          backend_url=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs[?OutputKey=='BackendURL'].OutputValue" --output text)
+          frontend_url=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs[?OutputKey=='FrontendURL'].OutputValue" --output text)
           echo "BACKEND_URL=$backend_url" >> $GITHUB_ENV
           echo "FRONTEND_URL=$frontend_url" >> $GITHUB_ENV
           echo $BACKEND_URL
