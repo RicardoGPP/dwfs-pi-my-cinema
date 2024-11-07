@@ -1,1 +1,1 @@
-web: npm install && VUE_APP_API_URL= npm run build && cd dist && npx http-server -p 8080
+web: npm install && VUE_APP_API_URL=http://$VUE_APP_API_URL npm run build && cd dist && npx http-server -p 8080
