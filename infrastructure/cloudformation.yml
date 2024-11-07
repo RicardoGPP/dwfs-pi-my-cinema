@@ -88,10 +88,6 @@ Outputs:
     Description: The endpoint address of the RDS instance
     Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
 
-  ECRRepositoryUri:
-    Description: The URI of the ECR repository
-    Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}"
-
   BackendEnvironmentURL:
     Description: The URL of the MyCinemaBackend environment
     Value: !GetAtt MyCinemaBackendEnvironment.EndpointURL
