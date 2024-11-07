@@ -170,16 +170,55 @@ jobs:
           aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }}
           aws configure set region ${{ secrets.AWS_REGION }}
 
+      # Gets backend and frontend URLs.
+      - name: Get backend and frontend URLs
+        run: |
+          OUTPUTS=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs" --output json)
+          BACKEND_URL=$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="BackendURL") | .OutputValue')
+          FRONTEND_URL=$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="FrontendURL") | .OutputValue')
+          echo "BACKEND_URL=$BACKEND_URL" >> $GITHUB_ENV
+          echo "FRONTEND_URL=$FRONTEND_URL" >> $GITHUB_ENV
+
+      # Sets up Node.js.
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '23.1.0'
+
+      # Installs dependencies.
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      # Replaces VUE_APP_API_URL value by backend URL.
+      - name: Replaces VUE_APP_API_URL value by backend URL
+        run: |
+          cd frontend
+          echo "VUE_APP_API_URL=http://$BACKEND_URL" > .env
+
+      # Builds the application.
+      - name: Build
+        run: |
+          cd frontend
+          npm run build
+
+      # Creates Procfile
+      - name: Create Procfile
+        run: |
+          cd frontend/dist
+          echo "web: npx http-server -p 8080 -P $FRONTEND_URL?" > Procfile
+
       # Zips artifact.
       - name: Zip artifact
         run: |
-          cd frontend
+          cd frontend/dist
           zip -r frontend.zip .
 
       # Uploads build artifact to S3.
       - name: Upload build artifact to S3
         run: |
-          cd frontend
+          cd frontend/dist
           aws s3 cp frontend.zip s3://${{ secrets.AWS_S3_BUCKET }}/frontend.zip
 
       # Generates a dynamic version label.

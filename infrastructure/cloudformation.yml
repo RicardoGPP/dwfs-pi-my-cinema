@@ -141,9 +141,6 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: VUE_APP_API_URL
           Value: !GetAtt MyCinemaBackendEnvironment.EndpointURL
-        - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: FRONTEND_URL
-          Value: !Sub "http://${MyCinemaFrontendEnvironment.CNAME}"
 
 Outputs:
 
@@ -158,7 +155,11 @@ Outputs:
   BackendEnvironmentURL:
     Description: The URL of the MyCinemaBackend environment
     Value: !GetAtt MyCinemaBackendEnvironment.EndpointURL
+    Export:
+      Name: BackendURL
 
   FrontendEnvironmentURL:
     Description: The URL of the MyCinemaFrontend environment
     Value: !GetAtt MyCinemaFrontendEnvironment.EndpointURL
+    Export:
+      Name: FrontendURL
