@@ -70,20 +70,6 @@ Resources:
       ApplicationName: MyCinema
       Description: "Application for MyCinema"
 
-  MyCinemaBackendInstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
-    Properties:
-      Path: "/"
-      Roles:
-        - LabRole
-
-  MyCinemaFrontendInstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
-    Properties:
-      Path: "/"
-      Roles:
-        - LabRole
-
   MyCinemaBackendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
     Properties:
@@ -94,6 +80,15 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
           Value: t2.micro
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamRole
+          Value: LabRole
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: vockey
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: LabInstanceProfile
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: JWT_SIGN_KEY_LOCATION
           Value: !Ref JwtSignKeyLocation
@@ -124,23 +119,26 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: OPENAI_API_KEY
           Value: !Ref OpenAiApiKey
-        - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: IamInstanceProfile
-          Value: !Ref MyCinemaBackendInstanceProfile
 
   MyCinemaFrontendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
     Properties:
       EnvironmentName: MyCinemaFrontend
       ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
-      SolutionStackName: "64bit Amazon Linux 2 v5.9.7 running Node.js 18"
+      SolutionStackName: "64bit Amazon Linux 2023 v6.2.2 running Node.js 20"
       OptionSettings:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
           Value: t2.micro
         - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamRole
+          Value: LabRole
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: vockey
+        - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
-          Value: !Ref MyCinemaFrontendInstanceProfile
+          Value: LabInstanceProfile
 
 Outputs:
 
