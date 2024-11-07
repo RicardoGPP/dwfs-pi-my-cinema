@@ -82,9 +82,6 @@ Resources:
           OptionName: InstanceType
           Value: t2.micro
         - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: IamRole
-          Value: LabRole
-        - Namespace: aws:autoscaling:launchconfiguration
           OptionName: EC2KeyName
           Value: vockey
         - Namespace: aws:autoscaling:launchconfiguration
@@ -132,9 +129,6 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
           Value: t2.micro
-        - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: IamRole
-          Value: LabRole
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: EC2KeyName
           Value: vockey
