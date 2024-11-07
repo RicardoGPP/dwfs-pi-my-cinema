@@ -1,5 +1,24 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+
+  S3BucketName:
+    Type: String
+    Description: The name of the S3 bucket
+
+  DbUser:
+    Type: String
+    Description: The user of the RDS database
+
+  DbPassword:
+    Type: String
+    Description: The password of the RDS database
+    NoEcho: true
+
+  DbName:
+    Type: String
+    Description: The name of the RDS database
+
 Resources:
 
   MyCinemaS3Bucket:
@@ -26,14 +45,21 @@ Resources:
       ApplicationName: MyCinema
       Description: "Application for MyCinema"
 
-  MyCinemaInstanceProfile:
+  MyCinemaBackendInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: "/"
       Roles:
-        - !Ref MyCinemaElasticBeanstalkEC2Role
+        - !Ref MyCinemaBackendRole
 
-  MyCinemaElasticBeanstalkEC2Role:
+  MyCinemaFrontendInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref MyCinemaFrontendRole
+
+  MyCinemaBackendRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -48,11 +74,23 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier
-        - arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier
-        - arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker
-        - arn:aws:iam::aws:policy/IAMFullAccess
-        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
-        - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
+        - arn:aws:iam::aws:policy/AmazonRDSFullAccess
+
+  MyCinemaFrontendRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier
 
   MyCinemaBackendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
@@ -65,14 +103,11 @@ Resources:
           OptionName: InstanceType
           Value: t2.micro
         - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: S3_BUCKET
-          Value: !Ref MyCinemaS3Bucket
-        - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: DB_HOST
           Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
-          Value: !Ref MyCinemaInstanceProfile
+          Value: !Ref MyCinemaBackendInstanceProfile
 
   MyCinemaFrontendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
@@ -84,31 +119,9 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
           Value: t3.small
-        - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: S3_BUCKET
-          Value: !Ref MyCinemaS3Bucket
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
-          Value: !Ref MyCinemaInstanceProfile
-
-Parameters:
-
-  S3BucketName:
-    Type: String
-    Description: The name of the S3 bucket
-
-  DbUser:
-    Type: String
-    Description: The user of the RDS database
-
-  DbPassword:
-    Type: String
-    Description: The password of the RDS database
-    NoEcho: true
-
-  DbName:
-    Type: String
-    Description: The name of the RDS database
+          Value: !Ref MyCinemaFrontendInstanceProfile
 
 Outputs:
 
