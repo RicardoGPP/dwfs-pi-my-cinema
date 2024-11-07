@@ -173,11 +173,13 @@ jobs:
       # Gets backend and frontend URLs.
       - name: Get backend and frontend URLs
         run: |
-          OUTPUTS=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs" --output json)
-          BACKEND_URL=$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="BackendURL") | .OutputValue')
-          FRONTEND_URL=$(echo $OUTPUTS | jq -r '.[] | select(.OutputKey=="FrontendURL") | .OutputValue')
-          echo "BACKEND_URL=$BACKEND_URL" >> $GITHUB_ENV
-          echo "FRONTEND_URL=$FRONTEND_URL" >> $GITHUB_ENV
+          outputs=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs" --output json)
+          backend_url=$(echo $outputs | jq -r '.[] | select(.OutputKey=="BackendURL") | .OutputValue')
+          frontend_url=$(echo $outputs | jq -r '.[] | select(.OutputKey=="FrontendURL") | .OutputValue')
+          echo "BACKEND_URL=$backend_url" >> $GITHUB_ENV
+          echo "FRONTEND_URL=$frontend_url" >> $GITHUB_ENV
+          echo $BACKEND_URL
+          echo $FRONTEND_URL
 
       # Sets up Node.js.
       - name: Set up Node.js
