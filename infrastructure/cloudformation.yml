@@ -42,7 +42,6 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: DB_HOST
           Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
-      VersionLabel: "latest"
 
   MyCinemaFrontendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
@@ -57,7 +56,6 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: S3_BUCKET
           Value: !Ref MyCinemaS3Bucket
-      VersionLabel: "latest"
 
 Parameters:
 
