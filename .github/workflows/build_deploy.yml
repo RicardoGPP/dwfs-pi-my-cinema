@@ -1,4 +1,4 @@
-name: Build and deploy MyCinema application
+name: Provision infrastructure and build/deploy MyCinema application
 
 on:
 
@@ -12,8 +12,8 @@ on:
 
 jobs:
 
-  # Prepares AWS infrastructure for further deployments.
-  infrastructure:
+  # Provisions AWS infrastructure for further deployments.
+  provision-infrastructure:
     name: Prepare infrastructure
     runs-on: ubuntu-latest
     steps:
@@ -77,6 +77,63 @@ jobs:
             --output text \
             --region ${{ secrets.AWS_REGION }})
           echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+
+  # Builds and deploys MyCinema's backend.
+  build-and-deploy-backend:
+    name: Build and Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks out application repository.
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Configures AWS credentials.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole
+
+      # Sets up JDK 21.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      # Caches Maven packages.
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      # Builds application.
+      - name: Build
+        run: mvn clean install --file backend/pom.xml -DskipTests
+
+      # Uploads build artifact (JAR) to S3.
+      - name: Upload JAR to S3
+        run: |
+          aws s3 cp backend/target/backend.jar s3://${{ secrets.AWS_S3_BUCKET }}/backend.jar
+
+      # Updates EB backend environment with new application version.
+      - name: Update EB backend environment
+        run: |
+          aws elasticbeanstalk update-environment \
+            --application-name MyCinema \
+            --environment-name MyCinemaBackend \
+            --version-label "$(date +'%Y%m%d%H%M%S')"
+
+      # Shows EB backend environment information.
+      - name: Show EB backend environment information
+        run: |
+          aws elasticbeanstalk describe-environments --application-name MyCinema --environment-names MyCinemaBackend
 
   # backend:
   #   name: Build and Deploy Backend
