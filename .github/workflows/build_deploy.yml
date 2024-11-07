@@ -127,8 +127,9 @@ jobs:
         run: |
           aws elasticbeanstalk create-application-version \
             --application-name MyCinema \
-            --version-label latest \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=mycinema-backend.jar
+            --version-label "latest" \
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=mycinema-backend.jar \
+            --auto-create-application --force
 
       # Updates EB backend environment with new application version.
       - name: Update EB backend environment
@@ -136,7 +137,7 @@ jobs:
           aws elasticbeanstalk update-environment \
             --application-name MyCinema \
             --environment-name MyCinemaBackend \
-            --version-label latest
+            --version-label "latest"
 
       # Shows EB backend environment information.
       - name: Show EB backend environment information
