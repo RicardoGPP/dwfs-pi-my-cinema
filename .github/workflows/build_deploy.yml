@@ -199,11 +199,11 @@ jobs:
       #     cd frontend
       #     VUE_APP_API_URL=${{ env.VUE_APP_API_URL }} npm run build
 
-      # Creates Procfile.
-      - name: Create Procfile
-        run: |
-          cd frontend
-          echo "web: npm install && VUE_APP_API_URL=$VUE_APP_API_URL npm run build && cd dist && npx http-server -p 8080" > Procfile
+      # # Creates Procfile.
+      # - name: Create Procfile
+      #   run: |
+      #     cd frontend
+      #     echo "web: npm install && VUE_APP_API_URL=$VUE_APP_API_URL npm run build && cd dist && npx http-server -p 8080" > Procfile
 
       # Zips artifact.
       - name: Zip artifact
