@@ -179,11 +179,6 @@ jobs:
           cd frontend
           npm install
 
-      # Sets backend's API URL environment variable.
-      - name: Set backend's API URL environment variable
-        run: |
-          echo "VUE_APP_API_URL=http://mycinemabackend.eba-88umsiyw.us-east-1.elasticbeanstalk.com" > frontend/.env
-
       # Builds the application.
       - name: Build
         run: |

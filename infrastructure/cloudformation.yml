@@ -139,6 +139,9 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
           Value: LabInstanceProfile
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: VUE_APP_API_URL
+          Value: !GetAtt MyCinemaBackendEnvironment.EndpointURL
 
 Outputs:
 
