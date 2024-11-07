@@ -48,7 +48,7 @@ Resources:
     Properties:
       EnvironmentName: MyCinemaFrontend
       ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
-      SolutionStackName: "64bit Amazon Linux 2023 v6.2.2 running Node.js 20"
+      SolutionStackName: "64bit Amazon Linux 2 v5.9.7 running Node.js 18"
       OptionSettings:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
@@ -56,10 +56,6 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: S3_BUCKET
           Value: !Ref MyCinemaS3Bucket
-      CreationPolicy:
-        ResourceSignal:
-          Count: 1
-          Timeout: PT15M
 
 Parameters:
 
