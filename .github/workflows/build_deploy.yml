@@ -31,6 +31,24 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # Checks if AWS stack already exists.
+      - name: Check if AWS stack already exists
+        id: stack_status
+        run: |
+          STACK_NAME=mycinema-infrastructure
+          STACK_STATUS=$(aws cloudformation describe-stacks \
+          --stack-name $STACK_NAME \
+          --query "Stacks[0].StackStatus" \
+          --output text || echo "NOT_FOUND")
+          echo "STACK_STATUS=$STACK_STATUS" >> $GITHUB_ENV
+
+      # If AWS stack is in rollback state, then deletes it.
+      - name: Delete AWS stack if it is in rollback state
+        if: env.STACK_STATUS == 'ROLLBACK_COMPLETE' || env.STACK_STATUS == 'ROLLBACK_FAILED'
+        run: |
+          aws cloudformation delete-stack --stack-name mycinema-infrastructure
+          aws cloudformation wait stack-delete-complete --stack-name mycinema-infrastructure
+
       # Provisions AWS stack using IaC cloudformation descriptor.
       - name: Provision AWS stack
         run: |
