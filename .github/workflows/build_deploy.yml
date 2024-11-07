@@ -170,22 +170,40 @@ jobs:
           aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }}
           aws configure set region ${{ secrets.AWS_REGION }}
 
+      # Sets up Node.js.
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '23.1.0'
+
+      # Installs application dependencies.
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      # Builds the application.
+      - name: Build
+        run: |
+          cd frontend
+          npm run build
+
       # Creates Procfile.
       - name: Create Procfile
         run: |
-          cd frontend
-          echo "web: npm install && npm run serve" > Procfile
+          cd frontend/dist
+          echo "web: npx http-server -p 8080" > Procfile
 
       # Zips artifact.
       - name: Zip artifact
         run: |
-          cd frontend
+          cd frontend/dist
           zip -r frontend.zip .
 
       # Uploads build artifact to S3.
       - name: Upload build artifact to S3
         run: |
-          cd frontend
+          cd frontend/dist
           aws s3 cp frontend.zip s3://${{ secrets.AWS_S3_BUCKET }}/frontend.zip
 
       # Generates a dynamic version label.
