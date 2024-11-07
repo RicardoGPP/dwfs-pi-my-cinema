@@ -75,9 +75,6 @@ Resources:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
           Value: !Ref MyCinemaBackendInstanceProfile
-        - Namespace: aws:elasticbeanstalk:container:environment
-          OptionName: PORT
-          Value: 9080
 
   MyCinemaFrontendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
