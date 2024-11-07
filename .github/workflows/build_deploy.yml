@@ -67,7 +67,7 @@ jobs:
               DbUser=${{ secrets.DB_USER }} \
               DbPassword=${{ secrets.DB_PASSWORD }} \
               TmdbApiKey=${{ secrets.TMDB_API_KEY }} \
-              OpenAiApiKey=${{ secrets.OPEN_AI_KEY }}
+              OpenAiApiKey=${{ secrets.OPENAI_API_KEY }}
 
       # Shows AWS stack set up process events on failure.
       - name: Show AWS stack set up process events on failure
@@ -118,10 +118,23 @@ jobs:
       - name: Build
         run: mvn clean install --file backend/pom.xml -DskipTests
 
-      # Uploads build artifact to S3.
-      - name: Upload build artifact to S3
+      # Creates Procfile.
+      - name: Create Procfile
         run: |
-          aws s3 cp --recursive backend/target/quarkus-app s3://${{ secrets.AWS_S3_BUCKET }}/backend
+          cd backend/target/quarkus-app
+          echo "web: java -jar quarkus-run.jar" > Procfile
+
+      # Zips artifact.
+      - name: Zip artifact
+        run: |
+          cd backend/target/quarkus-app
+          zip -r backend.zip .
+
+      # Uploads zipped artifact to S3.
+      - name: Upload zipped artifact to S3
+        run: |
+          cd backend/target/quarkus-app
+          aws s3 cp --recursive backend.zip s3://${{ secrets.AWS_S3_BUCKET }}/backend.zip
 
       # Generates a dynamic version label.
       - name: Generate dynamic version label
@@ -133,7 +146,7 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application-name MyCinema \
             --version-label "${{ env.VERSION_LABEL }}" \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=backend/quarkus-run.jar
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=backend.zip
 
       # Updates EB backend environment with new application version.
       - name: Update EB backend environment
@@ -167,28 +180,23 @@ jobs:
           aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }}
           aws configure set region ${{ secrets.AWS_REGION }}
 
-      # Sets up Node.js.
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '23.1.0'
-
-      # Installs application dependencies.
-      - name: Install dependencies
+      # Creates Procfile.
+      - name: Create Procfile
         run: |
           cd frontend
-          npm install
+          echo "web: npm install && npm run serve" > Procfile
 
-      # Builds the application.
-      - name: Build
+      # Zips artifact.
+      - name: Zip artifact
         run: |
           cd frontend
-          npm run build
+          zip -r frontend.zip .
 
       # Uploads build artifact to S3.
       - name: Upload build artifact to S3
         run: |
-          aws s3 cp --recursive frontend/dist s3://${{ secrets.AWS_S3_BUCKET }}/frontend
+          cd frontend
+          aws s3 cp --recursive frontend.zip s3://${{ secrets.AWS_S3_BUCKET }}/frontend.zip
 
       # Generates a dynamic version label.
       - name: Generate dynamic version label
@@ -200,8 +208,7 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application-name MyCinema \
             --version-label "${{ env.VERSION_LABEL }}" \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=frontend/index.html \
-            --auto-create-application
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=frontend.zip
 
       # Updates EB frontend environment with new application version.
       - name: Update EB frontend environment

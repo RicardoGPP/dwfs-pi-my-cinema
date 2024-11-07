@@ -60,7 +60,7 @@ Resources:
       MasterUsername: !Ref DbUser
       MasterUserPassword: !Ref DbPassword
       DBName: !Ref DbName
-      PubliclyAccessible: false
+      PubliclyAccessible: true
       AllocatedStorage: 20
     DeletionPolicy: Retain
 
@@ -72,6 +72,7 @@ Resources:
 
   MyCinemaBackendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
+    DependsOn: MyCinemaRDSInstance
     Properties:
       EnvironmentName: MyCinemaBackend
       ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
@@ -122,6 +123,7 @@ Resources:
 
   MyCinemaFrontendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
+    DependsOn: MyCinemaBackendEnvironment
     Properties:
       EnvironmentName: MyCinemaFrontend
       ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
