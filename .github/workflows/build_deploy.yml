@@ -59,24 +59,21 @@ jobs:
             --debug \
             --parameter-overrides \
               S3BucketName=${{ secrets.AWS_S3_BUCKET }} \
+              JwtSignKeyLocation=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
+              AdminEmail=${{ secrets.ADMIN_EMAIL }} \
+              AdminPassword=${{ secrets.ADMIN_PASSWORD }} \
+              DbPort=${{ secrets.DB_PORT }} \
+              DbName=${{ secrets.DB_NAME }} \
               DbUser=${{ secrets.DB_USER }} \
               DbPassword=${{ secrets.DB_PASSWORD }} \
-              DbName=${{ secrets.DB_NAME }}
+              TmdbApiKey=${{ secrets.TMDB_API_KEY }} \
+              OpenAiApiKey=${{ secrets.OPEN_AI_KEY }}
 
       # Shows AWS stack set up process events on failure.
       - name: Show AWS stack set up process events on failure
         if: failure()
         run: |
           aws cloudformation describe-stack-events --stack-name mycinema-infrastructure
-
-      # Gets the RDS database host when stack is ready and sets as an environment variable.
-      - name: Get RDS database host
-        run: |
-          DB_HOST=$(aws rds describe-db-instances \
-            --query "DBInstances[?DBName=='${{ secrets.DbName }}'].Endpoint.Address" \
-            --output text \
-            --region ${{ secrets.AWS_REGION }})
-          echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
 
   # Builds and deploys MyCinema's backend.
   build-and-deploy-backend:
@@ -117,10 +114,10 @@ jobs:
       - name: Build
         run: mvn clean install --file backend/pom.xml -DskipTests
 
-      # Uploads build artifact (JAR) to S3.
-      - name: Upload JAR to S3
+      # Uploads build artifact to S3.
+      - name: Upload build artifact to S3
         run: |
-          aws s3 cp backend/target/mycinema-1.0.0-SNAPSHOT.jar s3://${{ secrets.AWS_S3_BUCKET }}/mycinema-backend.jar
+          aws s3 cp --recursive backend/target/quarkus-app s3://${{ secrets.AWS_S3_BUCKET }}/backend
 
       # Generates a dynamic version label.
       - name: Generate dynamic version label
@@ -132,7 +129,7 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application-name MyCinema \
             --version-label "${{ env.VERSION_LABEL }}" \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=mycinema-backend.jar
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=backend/quarkus-run.jar
 
       # Updates EB backend environment with new application version.
       - name: Update EB backend environment

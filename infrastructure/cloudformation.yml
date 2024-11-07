@@ -6,6 +6,26 @@ Parameters:
     Type: String
     Description: The name of the S3 bucket
 
+  JwtSignKeyLocation:
+    Type: String
+    Description: The location of the JWT sign key (privateKey.pem) file
+
+  AdminEmail:
+    Type: String
+    Description: The e-mail of the admin user
+
+  AdminPassword:
+    Type: String
+    Description: The password of the admin user
+
+  DbPort:
+    type: Number
+    Description: The port of the RDS database
+
+  DbName:
+    Type: String
+    Description: The name of the RDS database
+
   DbUser:
     Type: String
     Description: The user of the RDS database
@@ -15,9 +35,13 @@ Parameters:
     Description: The password of the RDS database
     NoEcho: true
 
-  DbName:
+  TmdbApiKey:
     Type: String
-    Description: The name of the RDS database
+    Description: The The Movie Database API key
+
+  OpenAiApiKey:
+    Type: String
+    Description: The Open AI API key
 
 Resources:
 
@@ -70,8 +94,35 @@ Resources:
           OptionName: InstanceType
           Value: t2.micro
         - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: JWT_SIGN_KEY_LOCATION
+          Value: !Ref JwtSignKeyLocation
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ADMIN_EMAIL
+          Value: !Ref AdminEmail
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ADMIN_PASSWORD
+          Value: !Ref AdminPassword
+        - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: DB_HOST
           Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_PORT
+          Value: !Ref DbPort
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_NAME
+          Value: !Ref DbName
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_USER
+          Value: !Ref DbUser
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: DB_PASSWORD
+          Value: !Ref DbPassword
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: TMDB_API_KEY
+          Value: !Ref TmdbApiKey
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: OPENAI_API_KEY
+          Value: !Ref OpenAiApiKey
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: IamInstanceProfile
           Value: !Ref MyCinemaBackendInstanceProfile
