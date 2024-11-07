@@ -170,41 +170,6 @@ jobs:
           aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }}
           aws configure set region ${{ secrets.AWS_REGION }}
 
-      # # Sets up Node.js.
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '23.1.0'
-
-      # # Installs application dependencies.
-      # - name: Install dependencies
-      #   run: |
-      #     cd frontend
-      #     npm install
-
-      # # Replaces VUE_APP_API_URL by EB backend environment URL.
-      # - name: Replaces VUE_APP_API_URL by EB backend environment URL
-      #   run: |
-      #     cd frontend
-      #     BACKEND_URL=$(aws elasticbeanstalk describe-environments \
-      #     --application-name MyCinema \
-      #     --environment-name MyCinemaBackend \
-      #     --query "Environments[0].CNAME" \
-      #     --output text)
-      #     echo "VUE_APP_API_URL=http://$BACKEND_URL" > .env
-
-      # # Builds the application.
-      # - name: Build
-      #   run: |
-      #     cd frontend
-      #     VUE_APP_API_URL=${{ env.VUE_APP_API_URL }} npm run build
-
-      # # Creates Procfile.
-      # - name: Create Procfile
-      #   run: |
-      #     cd frontend
-      #     echo "web: npm install && VUE_APP_API_URL=$VUE_APP_API_URL npm run build && cd dist && npx http-server -p 8080" > Procfile
-
       # Zips artifact.
       - name: Zip artifact
         run: |
