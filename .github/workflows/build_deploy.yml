@@ -115,12 +115,20 @@ jobs:
 
       # Builds application.
       - name: Build
-        run: mvn clean install --file backend/pom.xml -DskipTests
+        run: mvn clean install --file backend/pom.xml -DskipTests -Dquarkus.package.output-name=mycinema-backend
 
       # Uploads build artifact (JAR) to S3.
       - name: Upload JAR to S3
         run: |
-          aws s3 cp backend/target/backend.jar s3://${{ secrets.AWS_S3_BUCKET }}/backend.jar
+          aws s3 cp backend/target/mycinema-backend.jar s3://${{ secrets.AWS_S3_BUCKET }}/mycinema-backend.jar
+
+      # Creates a new EB backend environment application version.
+      - name: Create EB backend environment application version
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name MyCinema \
+            --version-label latest \
+            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=mycinema-backend.jar
 
       # Updates EB backend environment with new application version.
       - name: Update EB backend environment
@@ -128,7 +136,7 @@ jobs:
           aws elasticbeanstalk update-environment \
             --application-name MyCinema \
             --environment-name MyCinemaBackend \
-            --version-label "$(date +'%Y%m%d%H%M%S')"
+            --version-label latest
 
       # Shows EB backend environment information.
       - name: Show EB backend environment information
