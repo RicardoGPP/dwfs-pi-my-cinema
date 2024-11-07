@@ -47,12 +47,13 @@ Resources:
 
   MyCinemaS3Bucket:
     Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
     Properties:
       BucketName: !Ref S3BucketName
-    DeletionPolicy: Delete
 
   MyCinemaRDSInstance:
     Type: 'AWS::RDS::DBInstance'
+    DeletionPolicy: Delete
     Properties:
       DBInstanceIdentifier: mycinema-db
       DBInstanceClass: db.t4g.micro
@@ -62,10 +63,10 @@ Resources:
       DBName: !Ref DbName
       PubliclyAccessible: true
       AllocatedStorage: 20
-    DeletionPolicy: Retain
 
   MyCinemaElasticBeanstalkApplication:
     Type: AWS::ElasticBeanstalk::Application
+    DeletionPolicy: Delete
     Properties:
       ApplicationName: MyCinema
       Description: "Application for MyCinema"
@@ -73,6 +74,7 @@ Resources:
   MyCinemaBackendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
     DependsOn: MyCinemaRDSInstance
+    DeletionPolicy: Delete
     Properties:
       EnvironmentName: MyCinemaBackend
       ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
@@ -121,6 +123,7 @@ Resources:
   MyCinemaFrontendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
     DependsOn: MyCinemaBackendEnvironment
+    DeletionPolicy: Delete
     Properties:
       EnvironmentName: MyCinemaFrontend
       ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
