@@ -28,15 +28,15 @@ Resources:
   MyCinemaElasticBeanstalkApplication:
     Type: AWS::ElasticBeanstalk::Application
     Properties:
-      ApplicationName: MyCinemaApplication
+      ApplicationName: MyCinema
       Description: "Application for MyCinema"
 
-  MyCinemaElasticBeanstalkEnvironment:
+  MyCinemaBackendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
     Properties:
-      EnvironmentName: MyCinemaEnvironment
+      EnvironmentName: MyCinemaBackend
       ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
-      SolutionStackName: "64bit Amazon Linux 2 v3.3.6 running Docker"
+      SolutionStackName: "64bit Amazon Linux 2023 v4.3.2 running Corretto 21"
       OptionSettings:
         - Namespace: aws:autoscaling:launchconfiguration
           OptionName: InstanceType
@@ -47,6 +47,21 @@ Resources:
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: DB_HOST
           Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
+      VersionLabel: "latest"
+
+  MyCinemaFrontendEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      EnvironmentName: MyCinemaFrontend
+      ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
+      SolutionStackName: "64bit Amazon Linux 2023 v6.2.2 running Node.js 20"
+      OptionSettings:
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t2.micro
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: S3_BUCKET
+          Value: !Ref MyCinemaS3Bucket
       VersionLabel: "latest"
 
 Parameters:
@@ -86,6 +101,10 @@ Outputs:
     Description: The URI of the ECR repository
     Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}"
 
-  ElasticBeanstalkEnvironmentURL:
-    Description: The URL of the Elastic Beanstalk environment
-    Value: !GetAtt MyCinemaElasticBeanstalkEnvironment.EndpointURL
+  BackendEnvironmentURL:
+    Description: The URL of the MyCinemaBackend environment
+    Value: !GetAtt MyCinemaBackendEnvironment.EndpointURL
+
+  FrontendEnvironmentURL:
+    Description: The URL of the MyCinemaFrontend environment
+    Value: !GetAtt MyCinemaFrontendEnvironment.EndpointURL
