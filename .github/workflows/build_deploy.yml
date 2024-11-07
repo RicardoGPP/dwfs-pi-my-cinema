@@ -182,11 +182,21 @@ jobs:
           cd frontend
           npm install
 
+      # Gets EB backend environment URL.
+      - name: Get EB backend environment URL
+        run: |
+          BACKEND_URL=$(aws elasticbeanstalk describe-environments \
+          --application-name MyCinema \
+          --environment-name MyCinemaBackend \
+          --query "Environments[0].CNAME" \
+          --output text)
+          echo "VUE_APP_API_URL=http://$BACKEND_URL" >> $GITHUB_ENV
+
       # Builds the application.
       - name: Build
         run: |
           cd frontend
-          npm run build
+          VUE_APP_API_URL=${{ env.VUE_APP_API_URL }} npm run build
 
       # Creates Procfile.
       - name: Create Procfile
