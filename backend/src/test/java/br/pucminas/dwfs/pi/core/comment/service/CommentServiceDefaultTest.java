@@ -65,13 +65,13 @@ class CommentServiceDefaultTest {
     }
 
     @Test
-    void testGetAllComment_whenNoCommentExist_thenMustReturnAnEmptyList() {
+    void testGetAllComments_whenNoCommentExist_thenMustReturnAnEmptyList() {
         assertEquals(Collections.emptyList(), commentService.getAllComments());
     }
 
     @Test
     @Transactional
-    void testGetAllComment_whenAtLeastOneCommentExists_thenMustReturnAFilledList() {
+    void testGetAllComments_whenAtLeastOneCommentExists_thenMustReturnAFilledList() {
         Movie movie = new Movie();
 
         movie.setTitle("Movie");
@@ -118,7 +118,7 @@ class CommentServiceDefaultTest {
     }
 
     @Test
-    void testGetAllCommentByMovie_whenMovieDoesNotExist_thenMustReturnAnEmptyList() {
+    void testGetAllCommentsByMovie_whenMovieDoesNotExist_thenMustReturnAnEmptyList() {
         Movie movie = new Movie();
 
         movie.setId(-1L);
@@ -128,7 +128,7 @@ class CommentServiceDefaultTest {
 
     @Test
     @Transactional
-    void testGetAllCommentByMovie_whenNoCommentExists_thenMustReturnAnEmptyList() {
+    void testGetAllCommentsByMovie_whenNoCommentExists_thenMustReturnAnEmptyList() {
         Movie movie = new Movie();
 
         movie.setTitle("Movie");
@@ -147,7 +147,7 @@ class CommentServiceDefaultTest {
 
     @Test
     @Transactional
-    void testGetAllCommentByMovie_whenAtLeastOneCommentExists_thenMustReturnAFilledList() {
+    void testGetAllCommentsByMovie_whenAtLeastOneCommentExists_thenMustReturnAFilledList() {
         Movie movie1 = new Movie();
 
         movie1.setTitle("Movie 1");

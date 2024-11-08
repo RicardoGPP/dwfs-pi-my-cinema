@@ -39,13 +39,13 @@ class LocationServiceDefaultTest {
     }
 
     @Test
-    void testGetAllLocation_whenNoLocationExist_thenMustReturnAnEmptyList() {
+    void testGetAllLocations_whenNoLocationExist_thenMustReturnAnEmptyList() {
         assertEquals(Collections.emptyList(), service.getAllLocations());
     }
 
     @Test
     @Transactional
-    void testGetAllLocation_whenAtLeastOneLocationExists_thenMustReturnAFilledList() {
+    void testGetAllLocations_whenAtLeastOneLocationExists_thenMustReturnAFilledList() {
         Location location1 = new Location();
 
         location1.setName("Location 1");
