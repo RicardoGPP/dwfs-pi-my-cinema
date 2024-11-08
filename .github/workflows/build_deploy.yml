@@ -14,7 +14,7 @@ jobs:
 
   # Provisions AWS infrastructure for further deployments.
   provision-infrastructure:
-    name: Prepare infrastructure
+    name: Provision infrastructure
     runs-on: ubuntu-latest
     steps:
 
@@ -58,10 +58,12 @@ jobs:
             --capabilities CAPABILITY_NAMED_IAM \
             --debug \
             --parameter-overrides \
-              S3BucketName=${{ secrets.AWS_S3_BUCKET }} \
+              BackendBucketName=${{ secrets.BACKEND_BUCKET_NAME }} \
+              FrontendBucketName=${{ secrets.FRONTEND_BUCKET_NAME }} \
               JwtSignKeyLocation=${{ secrets.JWT_SIGN_KEY_LOCATION }} \
               AdminEmail=${{ secrets.ADMIN_EMAIL }} \
               AdminPassword=${{ secrets.ADMIN_PASSWORD }} \
+              DbHost=${{ secrets.DB_HOST }} \
               DbPort=${{ secrets.DB_PORT }} \
               DbName=${{ secrets.DB_NAME }} \
               DbUser=${{ secrets.DB_USER }} \
@@ -124,7 +126,7 @@ jobs:
       - name: Upload artifact to S3
         run: |
           cd backend/target
-          aws s3 cp mycinema-1.0.0-SNAPSHOT-runner.jar s3://${{ secrets.AWS_S3_BUCKET }}/backend.jar
+          aws s3 cp mycinema-1.0.0-SNAPSHOT-runner.jar s3://${{ secrets.BACKEND_BUCKET_NAME }}/backend.jar
 
       # Generates a dynamic version label.
       - name: Generate dynamic version label
@@ -136,7 +138,7 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application-name MyCinema \
             --version-label "${{ env.VERSION_LABEL }}" \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=backend.jar
+            --source-bundle S3Bucket=${{ secrets.BACKEND_BUCKET_NAME }},S3Key=backend.jar
 
       # Updates EB backend environment with new application version.
       - name: Update EB backend environment
@@ -170,15 +172,12 @@ jobs:
           aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }}
           aws configure set region ${{ secrets.AWS_REGION }}
 
-      # Gets backend and frontend URLs.
-      - name: Get backend and frontend URLs
+      # Gets backend URL.
+      - name: Get backend URL
         run: |
           backend_url=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs[?OutputKey=='BackendURL'].OutputValue" --output text)
-          frontend_url=$(aws cloudformation describe-stacks --stack-name mycinema-infrastructure --query "Stacks[0].Outputs[?OutputKey=='FrontendURL'].OutputValue" --output text)
           echo "BACKEND_URL=$backend_url" >> $GITHUB_ENV
-          echo "FRONTEND_URL=$frontend_url" >> $GITHUB_ENV
           echo $BACKEND_URL
-          echo $FRONTEND_URL
 
       # Sets up Node.js.
       - name: Set up Node.js
@@ -204,45 +203,6 @@ jobs:
           cd frontend
           npm run build
 
-      # Creates Procfile
-      - name: Create Procfile
-        run: |
-          cd frontend/dist
-          echo "web: npx http-server -p 8080 -P $FRONTEND_URL?" > Procfile
-
-      # Zips artifact.
-      - name: Zip artifact
-        run: |
-          cd frontend/dist
-          zip -r frontend.zip .
-
       # Uploads build artifact to S3.
       - name: Upload build artifact to S3
-        run: |
-          cd frontend/dist
-          aws s3 cp frontend.zip s3://${{ secrets.AWS_S3_BUCKET }}/frontend.zip
-
-      # Generates a dynamic version label.
-      - name: Generate dynamic version label
-        run: echo "VERSION_LABEL=mycinema-frontend-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-
-      # Creates a new EB frontend environment application version.
-      - name: Create EB frontend environment application version
-        run: |
-          aws elasticbeanstalk create-application-version \
-            --application-name MyCinema \
-            --version-label "${{ env.VERSION_LABEL }}" \
-            --source-bundle S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=frontend.zip
-
-      # Updates EB frontend environment with new application version.
-      - name: Update EB frontend environment
-        run: |
-          aws elasticbeanstalk update-environment \
-            --application-name MyCinema \
-            --environment-name MyCinemaFrontend \
-            --version-label "${{ env.VERSION_LABEL }}"
-
-      # Shows EB frontend environment information.
-      - name: Show EB frontend environment information
-        run: |
-          aws elasticbeanstalk describe-environments --application-name MyCinema --environment-names MyCinemaFrontend
+        run: aws s3 cp --recursive frontend/dist s3://${{ secrets.FRONTEND_BUCKET_NAME }}

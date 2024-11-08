@@ -2,9 +2,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
 
-  S3BucketName:
+  BackendBucketName:
     Type: String
-    Description: The name of the S3 bucket
+    Description: The name of the backend's S3 bucket
+
+  FrontendBucketName:
+    Type: String
+    Description: The name of the frontend's S3 bucket
 
   JwtSignKeyLocation:
     Type: String
@@ -18,21 +22,25 @@ Parameters:
     Type: String
     Description: The password of the admin user
 
+  DbHost:
+    Type: String
+    Description: The host of the database
+
   DbPort:
     Type: String
-    Description: The port of the RDS database
+    Description: The port of the database
 
   DbName:
     Type: String
-    Description: The name of the RDS database
+    Description: The name of the database
 
   DbUser:
     Type: String
-    Description: The user of the RDS database
+    Description: The user of the database
 
   DbPassword:
     Type: String
-    Description: The password of the RDS database
+    Description: The password of the database
     NoEcho: true
 
   TmdbApiKey:
@@ -45,24 +53,22 @@ Parameters:
 
 Resources:
 
-  MyCinemaS3Bucket:
+  MyCinemaBackendBucket:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Delete
     Properties:
-      BucketName: !Ref S3BucketName
+      BucketName: !Ref BackendBucketName
 
-  MyCinemaRDSInstance:
-    Type: 'AWS::RDS::DBInstance'
+  MyCinemaFrontendBucket:
+    Type: 'AWS::S3::Bucket'
     DeletionPolicy: Delete
     Properties:
-      DBInstanceIdentifier: mycinema-db
-      DBInstanceClass: db.t4g.micro
-      Engine: postgres
-      MasterUsername: !Ref DbUser
-      MasterUserPassword: !Ref DbPassword
-      DBName: !Ref DbName
-      PubliclyAccessible: true
-      AllocatedStorage: 20
+      BucketName: !Ref FrontendBucketName
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+    DeletionPolicy: Retain
 
   MyCinemaElasticBeanstalkApplication:
     Type: AWS::ElasticBeanstalk::Application
@@ -73,7 +79,6 @@ Resources:
 
   MyCinemaBackendEnvironment:
     Type: AWS::ElasticBeanstalk::Environment
-    DependsOn: MyCinemaRDSInstance
     DeletionPolicy: Delete
     Properties:
       EnvironmentName: MyCinemaBackend
@@ -100,7 +105,7 @@ Resources:
           Value: !Ref AdminPassword
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: DB_HOST
-          Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
+          Value: !Ref DbHost
         - Namespace: aws:elasticbeanstalk:application:environment
           OptionName: DB_PORT
           Value: !Ref DbPort
@@ -120,46 +125,16 @@ Resources:
           OptionName: OPENAI_API_KEY
           Value: !Ref OpenAiApiKey
 
-  MyCinemaFrontendEnvironment:
-    Type: AWS::ElasticBeanstalk::Environment
-    DependsOn: MyCinemaBackendEnvironment
-    DeletionPolicy: Delete
-    Properties:
-      EnvironmentName: MyCinemaFrontend
-      ApplicationName: !Ref MyCinemaElasticBeanstalkApplication
-      SolutionStackName: "64bit Amazon Linux 2023 v6.2.2 running Node.js 20"
-      OptionSettings:
-        - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: InstanceType
-          Value: t2.micro
-        - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: EC2KeyName
-          Value: vockey
-        - Namespace: aws:autoscaling:launchconfiguration
-          OptionName: IamInstanceProfile
-          Value: LabInstanceProfile
-        - Namespace: aws:elasticbeanstalk:application:environment
-          OptionName: VUE_APP_API_URL
-          Value: !GetAtt MyCinemaBackendEnvironment.EndpointURL
-
 Outputs:
 
-  S3Bucket:
-    Description: The name of the S3 bucket
-    Value: !Ref MyCinemaS3Bucket
-
-  RDSInstanceEndpoint:
-    Description: The endpoint address of the RDS instance
-    Value: !GetAtt MyCinemaRDSInstance.Endpoint.Address
-
-  BackendEnvironmentURL:
-    Description: The URL of the MyCinemaBackend environment
-    Value: !GetAtt MyCinemaBackendEnvironment.EndpointURL
+  BackendURL:
+    Description: The URL of the MyCinema's backend
+    Value: !Sub 'http://${MyCinemaBackendEnvironment.EndpointURL}'
     Export:
       Name: BackendURL
 
-  FrontendEnvironmentURL:
-    Description: The URL of the MyCinemaFrontend environment
-    Value: !GetAtt MyCinemaFrontendEnvironment.EndpointURL
+  FrontendURL:
+    Description: The URL of the MyCinema's frontend
+    Value: !Sub 'http://${MyCinemaFrontendBucket}.s3-website-${AWS::Region}.amazonaws.com'
     Export:
       Name: FrontendURL
