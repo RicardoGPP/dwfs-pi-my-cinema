@@ -116,6 +116,12 @@ jobs:
       - name: Create privateKey.pem file
         run: echo "${{ secrets.JWT_SIGN_KEY }}" > backend/src/main/resources/META-INF/resources/privateKey.pem
 
+      # Runs the application's unit tests.
+      - name: Run unit tests
+        run: |
+          cd backend
+          mvn clean test
+
       # Builds the application.
       - name: Build
         run: |
