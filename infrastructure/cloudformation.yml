@@ -64,7 +64,9 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BucketName: !Ref FrontendBucketName
-      ObjectOwnership: ObjectWriter
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
