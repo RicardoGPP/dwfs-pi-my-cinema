@@ -195,7 +195,7 @@ jobs:
       - name: Replaces VUE_APP_API_URL value by backend URL
         run: |
           cd frontend
-          echo "VUE_APP_API_URL=http://$BACKEND_URL" > .env
+          echo "VUE_APP_API_URL=$BACKEND_URL" > .env
 
       # Builds the application.
       - name: Build
