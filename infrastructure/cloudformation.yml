@@ -64,9 +64,11 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BucketName: !Ref FrontendBucketName
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: BucketOwnerPreferred
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
