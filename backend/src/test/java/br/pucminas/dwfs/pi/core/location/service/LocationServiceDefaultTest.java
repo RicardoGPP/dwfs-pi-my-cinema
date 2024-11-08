@@ -45,7 +45,7 @@ class LocationServiceDefaultTest {
 
     @Test
     @Transactional
-    void testGetAllLocation_whenAtLeastOneLocationExist_thenMustReturnAFilledList() {
+    void testGetAllLocation_whenAtLeastOneLocationExists_thenMustReturnAFilledList() {
         Location location1 = new Location();
 
         location1.setName("Location 1");
