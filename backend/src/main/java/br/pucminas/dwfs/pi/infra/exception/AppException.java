@@ -2,6 +2,13 @@ package br.pucminas.dwfs.pi.infra.exception;
 
 import lombok.Getter;
 
+/**
+ * Represents the most common exception of the application.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 08/11/2024
+ */
 @Getter
 public class AppException extends RuntimeException {
 

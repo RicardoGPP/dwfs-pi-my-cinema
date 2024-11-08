@@ -6,6 +6,13 @@ import org.eclipse.microprofile.openapi.annotations.info.Info;
 
 import jakarta.ws.rs.core.Application;
 
+/**
+ * Application's Open API definition.
+ * 
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
+ * @version 1.0
+ * @since 08/11/2024
+ */
 @OpenAPIDefinition(
     info = @Info(
         title = "MyCinema API",

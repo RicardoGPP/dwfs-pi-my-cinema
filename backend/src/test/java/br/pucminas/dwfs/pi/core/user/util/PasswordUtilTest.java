@@ -13,7 +13,7 @@ import io.quarkus.test.junit.QuarkusTest;
 /**
  * Tests the password util class.
  * 
- * @author Ricardo Giovani Piantavinha Perandré (rperandre)
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
  * @since 08/11/2024
  */

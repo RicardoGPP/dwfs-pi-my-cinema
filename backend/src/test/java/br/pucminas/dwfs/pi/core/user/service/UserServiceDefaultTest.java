@@ -25,7 +25,7 @@ import jakarta.transaction.Transactional;
 /**
  * Tests the user service default class.
  * 
- * @author Ricardo Giovani Piantavinha Perandré (rperandre)
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
  * @since 08/11/2024
  */

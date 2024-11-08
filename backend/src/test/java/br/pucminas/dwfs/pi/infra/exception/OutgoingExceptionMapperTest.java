@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Response;
 /**
  * Tests the outgoing exception mapper class.
  * 
- * @author Ricardo Giovani Piantavinha Perandré (rperandre)
+ * @author Ricardo Giovani Piantavinha Perandré (RicardoGPP)
  * @version 1.0
  * @since 08/11/2024
  */
