@@ -3,7 +3,7 @@
 MyCinema é uma plataforma web desenvolvida como parte da disciplina de Projetos Integrados do curso de Pós-graduação em Desenvolvimento Web Fullstack da PUC Minas. O objetivo do projeto é oferecer uma experiência intuitiva na escolha de filmes em cinemas locais. Com funcionalidades que permitem visualizar os filmes em cartaz, acessar informações detalhadas, comentários e sentimentos dos espectadores, o MyCinema visa facilitar a vida dos cinéfilos e dos funcionários dos cinemas.
 
 O diferencial do MyCinema está na integração com APIs modernas para enriquecer a experiência do usuário:
-- **TMDB**: Utilizado para fornecer informações completas sobre os filmes, como sinopse, elenco e pôsteres.
+- **TMDB**: Utilizado para fornecer informações completas sobre os filmes, como título, sinopse, gêneros e pôsteres.
 - **OpenAI**: Utilizada para gerar resumos inteligentes dos sentimentos dos espectadores sobre os filmes, proporcionando uma visão geral das opiniões e críticas do público.
 
 ## Funcionalidades
@@ -24,7 +24,7 @@ O diferencial do MyCinema está na integração com APIs modernas para enriquece
 - **Java com Quarkus**: O backend foi desenvolvido utilizando o framework Quarkus, por ser leve e ideal para aplicativos cloud-native.
 - **PostgreSQL**: Banco de dados para armazenamento das informações de filmes, sessões e usuários.
 - **Integrações de API**:
-  - **TMDB**: API utilizada para obter informações dos filmes, como descrição, elenco e pôsteres.
+  - **TMDB**: API utilizada para obter informações dos filmes, como título, sinopse, gêneros e pôsteres.
   - **OpenAI**: Utilizada para gerar resumos de sentimento dos comentários dos espectadores sobre os filmes.
 
 ### Frontend
