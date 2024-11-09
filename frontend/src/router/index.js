@@ -20,6 +20,7 @@ const routes = [
         name: 'movies',
         component: MoviesView,
         meta: {
+            requiresLogin: true,
             requiresAdmin: true
         }
     },
@@ -34,6 +35,7 @@ const routes = [
         name: 'locations',
         component: LocationsView,
         meta: {
+            requiresLogin: true,
             requiresAdmin: true
         }
     },
@@ -42,13 +44,17 @@ const routes = [
         name: 'sessions',
         component: SessionsView,
         meta: {
+            requiresLogin: true,
             requiresAdmin: true
         }
     },
     {
         path: '/profile',
         name: 'profile',
-        component: ProfileView
+        component: ProfileView,
+        meta: {
+            requiresLogin: true
+        }
     },
     {
         path: '/unauthorized',
@@ -70,13 +76,17 @@ const router = createRouter({
 router.beforeEach((to, _, next) => {
     const token = localStorage.getItem('token');
 
+    if (to.meta?.requiresLogin && !token) {
+        return next({ name: 'home' });
+    }
+
     let admin = false;
 
     if (token) {
         admin = jwtDecode(token).admin;
     }
 
-    if (to.meta.requiresAdmin && !admin) {
+    if (to.meta?.requiresAdmin && !admin) {
         return next({ name: 'unauthorized' });
     }
 

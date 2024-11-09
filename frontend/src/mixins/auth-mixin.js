@@ -20,6 +20,18 @@ export default {
         clearAuthToken() {
             localStorage.removeItem(this.getAuthTokenKey());
         },
+        getUserNameKey() {
+            return 'username';
+        },
+        getUserName() {
+            return localStorage.getItem(this.getUserNameKey());
+        },
+        setUserName(username) {
+            localStorage.setItem(this.getUserNameKey(), username);
+        },
+        clearUserName() {
+            localStorage.removeItem(this.getUserNameKey());
+        },
         async doLogin(email, password) {
             const credentials = { email, password };
             const token = await UserService.doLogin(credentials);
@@ -28,6 +40,7 @@ export default {
         },
         doLogout() {
             this.clearAuthToken();
+            this.clearUserName();
             this.refreshPage();
         },
         refreshPage() {
@@ -42,9 +55,15 @@ export default {
                 return;
             }
 
-            const { id, name, email, admin } = jwtDecode(token);
+            let { id, name, email, admin } = jwtDecode(token);
 
-            this.user = { id, name, email, admin };
+            let username = this.getUserName();
+
+            if (!username) {
+                username = name;
+            }
+
+            this.user = { id, name: username, email, admin };
         }
     },
     created() {
