@@ -3,6 +3,9 @@
         <h2>
             {{ title }}
         </h2>
+        <h5 v-if="subtitle">
+            {{ subtitle }}
+        </h5>
         <span>
             {{ message }}
         </span>
@@ -16,6 +19,10 @@ export default {
         title: {
             type: String,
             required: true
+        },
+        subtitle: {
+            type: String,
+            required: false
         },
         message: {
             type: String,
@@ -41,5 +48,12 @@ export default {
 
 h2 {
     margin: 0;
+}
+
+h5 {
+    margin: 0;
+    margin-bottom: 15px;
+    color: #a5a5a5;
+    font-weight: normal;
 }
 </style>

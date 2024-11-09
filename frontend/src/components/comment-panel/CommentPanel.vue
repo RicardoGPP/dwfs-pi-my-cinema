@@ -9,6 +9,7 @@
                 <InfoPanel
                     v-if="summary"
                     title="Resumo dos comentários"
+                    subtitle="Gerado por inteligência artificial"
                     :message="summary"
                 />
                 <CommentList
@@ -74,20 +75,57 @@ export default {
             this.comments = responses[0];
             this.summary = responses[1];
         },
-        async post(text) {
-            const comment = {
-                movieId: this.movie.id,
-                text
+        post(text) {
+            const createComment = () => {
+                return CommentService.create({
+                    movieId: this.movie.id,
+                    text
+                });
             };
 
-            try {
-                await CommentService.create(comment);
-            } catch (error) {
-                console.error(error.message);
-                return;
-            }
+            const refreshList = () => {
+                this.doSignal();
+            };
 
-            this.doSignal();
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'O comentário foi postado com sucesso!',
+                    life: 3000
+                });
+            };
+
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = () => {
+                this.$loading.wrap(
+                    createComment()
+                        .then(refreshList)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            this.$confirm.require({
+                header: 'Confirmação',
+                message: 'Deseja realmente postar o comentário?',
+                acceptProps: {
+                    label: 'Sim'
+                },
+                rejectProps: {
+                    label: 'Não',
+                    severity: 'secondary'
+                },
+                accept: onAccept
+            });
         }
     }
 }
