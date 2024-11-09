@@ -1,6 +1,6 @@
 <template>
     <div class="session-table">
-        <DataTable :value="sessions">
+        <DataTable :value="sessions" stripedRows>
             <!-- Empty -->
             <template #empty>
                 Não há sessões a exibir.
@@ -24,15 +24,22 @@
             <Column
                 field="date"
                 header="Data"
-                sortable
-            />
+                sortable>
+                <template #body="slotProps">
+                    {{ getFormattedDate(slotProps.data.date) }}
+                </template>
+            </Column>
+
 
             <!-- Hora -->
             <Column
                 field="time"
                 header="Hora"
-                sortable
-            />
+                sortable>
+                <template #body="slotProps">
+                    {{ getFormattedTime(slotProps.data.time) }}
+                </template>
+            </Column>
 
             <!-- Ações -->
             <Column header="Ações" headerStyle="width: 180px">
@@ -71,6 +78,16 @@ export default {
         sessions: {
             type: Array,
             required: true
+        }
+    },
+    methods: {
+        getFormattedDate(date) {
+            const [ year, month, day ] = date.split('-');
+            return `${day}/${month}/${year}`;
+        },
+        getFormattedTime(time) {
+            const [ hour, minute ] = time.split(':');
+            return `${hour}:${minute}`;
         }
     }
 }

@@ -76,12 +76,49 @@ export default {
                 this.doSignal();
             };
 
-            const onFillSession = (filledSession) => {
-                createSession(filledSession)
-                    .then(refreshTable);
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'A sessão foi criada com sucesso!',
+                    life: 3000
+                });
             };
 
-            this.$refs[this.dialog.session].open('create', null, onFillSession);
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = (filledSession) => {
+                this.$loading.wrap(
+                    createSession(filledSession)
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            const showConfirm = (filledSession) => {
+                this.$confirm.require({
+                    header: 'Confirmação',
+                    message: 'Deseja realmente criar a sessão?',
+                    acceptProps: {
+                        label: 'Sim'
+                    },
+                    rejectProps: {
+                        label: 'Não',
+                        severity: 'secondary'
+                    },
+                    accept: () => onAccept(filledSession)
+                });
+            };
+
+            this.$refs[this.dialog.session].open('create', null, showConfirm);
         },
         update(session) {
             const updateSession = (filledSession) => {
@@ -98,20 +135,99 @@ export default {
                 this.doSignal();
             };
 
-            const onFillSession = (filledSession) => {
-                updateSession(filledSession)
-                    .then(refreshTable);
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'A sessão foi editada com sucesso!',
+                    life: 3000
+                });
             };
 
-            this.$refs[this.dialog.session].open('edit', session, onFillSession);
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = (filledSession) => {
+                this.$loading.wrap(
+                    updateSession(filledSession)
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            const showConfirm = (filledSession) => {
+                this.$confirm.require({
+                    header: 'Confirmação',
+                    message: 'Deseja realmente editar a sessão?',
+                    acceptProps: {
+                        label: 'Sim'
+                    },
+                    rejectProps: {
+                        label: 'Não',
+                        severity: 'secondary'
+                    },
+                    accept: () => onAccept(filledSession)
+                });
+            };
+
+            this.$refs[this.dialog.session].open('edit', session, showConfirm);
         },
-        async remove(session) {
-            try {
-                await SessionService.delete(session.id);
+        remove(session) {
+            const remove = () => {
+                return SessionService.delete(session.id);
+            };
+
+            const refreshTable = () => {
                 this.doSignal();
-            } catch (error) {
-                console.error(error.message);
-            }
+            };
+
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'A sessão foi excluída com sucesso!',
+                    life: 3000
+                });
+            };
+
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = () => {
+                this.$loading.wrap(
+                    remove()
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            this.$confirm.require({
+                header: 'Confirmação',
+                message: 'Deseja realmente excluir a sessão?',
+                acceptProps: {
+                    label: 'Sim',
+                    severity: 'danger'
+                },
+                rejectProps: {
+                    label: 'Não',
+                    severity: 'secondary'
+                },
+                accept: onAccept
+            });
         }
     },
     mounted() {

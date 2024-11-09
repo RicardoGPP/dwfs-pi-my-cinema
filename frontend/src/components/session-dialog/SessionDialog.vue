@@ -103,6 +103,7 @@
             <template #footer>
                 <Button
                     label="Aplicar"
+                    :disabled="!canApply"
                     @click="apply"
                 />
                 <Button
@@ -217,6 +218,22 @@ export default {
 
                 this.session.target.time = `${hours}:${minutes}`;
             }
+        },
+        canApply() {
+            const requiredFields = [
+                'movie',
+                'location',
+                'date',
+                'time'
+            ];
+
+            for (let requiredField of requiredFields) {
+                if (_.isEmpty(this.session.target[requiredField])) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     },
     methods: {

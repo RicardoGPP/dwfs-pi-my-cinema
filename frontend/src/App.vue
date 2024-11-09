@@ -3,15 +3,24 @@
     <div class="global-content">
         <router-view/>
     </div>
+    <ConfirmDialog/>
+    <LoadingDialog/>
+    <Toast/>
 </template>
 
 <script>
 import AppHeader from '@/components/app-header/AppHeader.vue';
+import ConfirmDialog from 'primevue/confirmdialog';
+import LoadingDialog from '@/components/loading-dialog/LoadingDialog.vue';
+import Toast from 'primevue/toast';
 
 export default {
     name: 'App',
     components: {
-        AppHeader
+        AppHeader,
+        ConfirmDialog,
+        LoadingDialog,
+        Toast
     }
 }
 </script>
