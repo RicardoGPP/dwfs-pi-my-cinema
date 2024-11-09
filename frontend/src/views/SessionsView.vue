@@ -180,7 +180,7 @@ export default {
             this.$refs[this.dialog.session].open('edit', session, showConfirm);
         },
         remove(session) {
-            const remove = () => {
+            const removeLocation = () => {
                 return SessionService.delete(session.id);
             };
 
@@ -208,7 +208,7 @@ export default {
 
             const onAccept = () => {
                 this.$loading.wrap(
-                    remove()
+                    removeLocation()
                         .then(refreshTable)
                         .then(showSuccessMessage)
                         .catch(showErrorMessage)

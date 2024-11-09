@@ -37,6 +37,7 @@
             <template #footer>
                 <Button
                     label="Aplicar"
+                    :disabled="!canApply"
                     @click="apply"
                 />
                 <Button
@@ -78,6 +79,20 @@ export default {
                 return 'Criação';
             }
             return 'Edição';
+        },
+        canApply() {
+            const requiredFields = [
+                'name',
+                'address'
+            ];
+
+            for (let requiredField of requiredFields) {
+                if (_.isEmpty(this.location.target[requiredField])) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     },
     methods: {

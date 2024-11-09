@@ -1,6 +1,6 @@
 <template>
     <div class="location-table">
-        <DataTable :value="locations">
+        <DataTable :value="locations" stripedRows>
             <!-- Empty -->
             <template #empty>
                 Não há localizações a exibir.

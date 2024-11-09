@@ -70,12 +70,49 @@ export default {
                 this.doSignal();
             };
 
-            const onFillLocation = (filledLocation) => {
-                createLocation(filledLocation)
-                    .then(refreshTable);
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'A localização foi criada com sucesso!',
+                    life: 3000
+                });
             };
 
-            this.$refs[this.dialog.location].open('create', null, onFillLocation);
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = (filledLocation) => {
+                this.$loading.wrap(
+                    createLocation(filledLocation)
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            const showConfirm = (filledLocation) => {
+                this.$confirm.require({
+                    header: 'Confirmação',
+                    message: 'Deseja realmente criar a localização?',
+                    acceptProps: {
+                        label: 'Sim'
+                    },
+                    rejectProps: {
+                        label: 'Não',
+                        severity: 'secondary'
+                    },
+                    accept: () => onAccept(filledLocation)
+                });
+            };
+
+            this.$refs[this.dialog.location].open('create', null, showConfirm);
         },
         update(location) {
             const updateLocation = (filledLocation) => {
@@ -86,20 +123,99 @@ export default {
                 this.doSignal();
             };
 
-            const onFillLocation = (filledLocation) => {
-                updateLocation(filledLocation)
-                    .then(refreshTable);
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'A localização foi editada com sucesso!',
+                    life: 3000
+                });
             };
 
-            this.$refs[this.dialog.location].open('edit', location, onFillLocation);
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = (filledLocation) => {
+                this.$loading.wrap(
+                    updateLocation(filledLocation)
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            const showConfirm = (filledLocation) => {
+                this.$confirm.require({
+                    header: 'Confirmação',
+                    message: 'Deseja realmente editar a localização?',
+                    acceptProps: {
+                        label: 'Sim'
+                    },
+                    rejectProps: {
+                        label: 'Não',
+                        severity: 'secondary'
+                    },
+                    accept: () => onAccept(filledLocation)
+                });
+            };
+
+            this.$refs[this.dialog.location].open('edit', location, showConfirm);
         },
-        async remove(location) {
-            try {
-                await LocationService.delete(location.id);
+        remove(location) {
+            const removeLocation = () => {
+                return LocationService.delete(location.id);
+            };
+
+            const refreshTable = () => {
                 this.doSignal();
-            } catch (error) {
-                console.error(error.message);
-            }
+            };
+
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'A localização foi excluída com sucesso!',
+                    life: 3000
+                });
+            };
+
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = () => {
+                this.$loading.wrap(
+                    removeLocation()
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            this.$confirm.require({
+                header: 'Confirmação',
+                message: 'Deseja realmente excluir a localização?',
+                acceptProps: {
+                    label: 'Sim',
+                    severity: 'danger'
+                },
+                rejectProps: {
+                    label: 'Não',
+                    severity: 'secondary'
+                },
+                accept: onAccept
+            });
         }
     },
     mounted() {

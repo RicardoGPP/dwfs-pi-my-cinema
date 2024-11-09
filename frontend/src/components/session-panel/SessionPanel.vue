@@ -19,6 +19,9 @@
                         optionLabel="label"
                         optionValue="value"
                     />
+                    <span v-if="location" class="address">
+                        Endereço: {{ location.address }}
+                    </span>
                 </div>
                 <div v-if="location" class="row">
                     <h3>
@@ -303,6 +306,12 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.address {
+    font-size: 12px;
+    color: #808080;
+    font-style: italic;
 }
 
 hr {
