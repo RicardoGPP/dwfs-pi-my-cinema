@@ -67,6 +67,8 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
       OwnershipControls:
         Rules:
           - ObjectOwnership: ObjectWriter
