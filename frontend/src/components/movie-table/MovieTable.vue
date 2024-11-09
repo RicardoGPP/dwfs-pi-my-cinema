@@ -17,8 +17,11 @@
             <Column
                 field="releaseDate"
                 header="Data de Lançamento"
-                sortable
-            />
+                sortable>
+                <template #body="slotProps">
+                    {{ getFormattedDate(slotProps.data.releaseDate) }}
+                </template>
+            </Column>
 
             <!-- Runtime -->
             <Column
@@ -64,6 +67,12 @@ export default {
         movies: {
             type: Array,
             required: true
+        }
+    },
+    methods: {
+        getFormattedDate(date) {
+            const [ year, month, day ] = date.split('-');
+            return `${day}/${month}/${year}`;
         }
     }
 }

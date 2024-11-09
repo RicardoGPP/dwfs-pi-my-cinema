@@ -163,13 +163,13 @@ export default {
         },
         date: {
             get() {
-                const date = this.session.target.date;
+                const stringDate = this.session.target.date;
 
-                if (!date) {
+                if (_.isEmpty(stringDate)) {
                     return null;
                 }
 
-                const parts = date.split('-');
+                const parts = stringDate.split('-');
 
                 const year = Number(parts[0]);
                 const month = Number(parts[1]);
@@ -178,26 +178,28 @@ export default {
                 return new Date(year, month - 1, day);
             },
             set(date) {
-                if (!date) {
-                    return;
+                let stringDate = null;
+
+                if (date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+
+                    stringDate = `${year}-${month}-${day}`;
                 }
 
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-
-                this.session.target.date = `${year}-${month}-${day}`;
+                this.session.target.date = stringDate;
             }
         },
         time: {
             get() {
-                const time = this.session.target.time;
+                const stringTime = this.session.target.time;
 
-                if (!time) {
+                if (_.isEmpty(stringTime)) {
                     return null;
                 }
 
-                const parts = time.split(':');
+                const parts = stringTime.split(':');
 
                 const hours = parts[0];
                 const minutes = parts[1];
@@ -209,14 +211,16 @@ export default {
                 return date;
             },
             set(time) {
-                if (!time) {
-                    return;
+                let stringTime = null;
+
+                if (time) {
+                    const hours = String(time.getHours()).padStart(2, '0');
+                    const minutes = String(time.getMinutes()).padStart(2, '0');
+
+                    stringTime = `${hours}:${minutes}`;
                 }
 
-                const hours = String(time.getHours()).padStart(2, '0');
-                const minutes = String(time.getMinutes()).padStart(2, '0');
-
-                this.session.target.time = `${hours}:${minutes}`;
+                this.session.target.time = stringTime;
             }
         },
         canApply() {
@@ -261,7 +265,7 @@ export default {
             promises.push(MovieService.getAll());
             promises.push(LocationService.getAll());
 
-            const responses = await Promise.all(promises);
+            const responses = await this.$loading.wrap(Promise.all(promises));
 
             this.movies = responses[0];
             this.locations = responses[1];
@@ -297,6 +301,10 @@ export default {
             };
 
             value[key] = label;
+
+            if (Object.keys(item).includes('address')) {
+                value.address = item.address;
+            }
 
             return { label, value };
         }

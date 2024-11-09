@@ -24,7 +24,7 @@
             <!-- Address -->
             <div class="input">
                 <label for="address">
-                    *Tagline:
+                    *Endereço:
                 </label>
                 <InputText
                     id="address"

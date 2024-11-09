@@ -4,7 +4,7 @@ export default {
     install(app) {
         app.config.globalProperties.$loading = {
             wrap(promise) {
-                LoadingDialogService.wrap(promise);
+                return LoadingDialogService.wrap(promise);
             }
         };
     }

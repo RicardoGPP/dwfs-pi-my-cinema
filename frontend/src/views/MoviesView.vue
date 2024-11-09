@@ -68,14 +68,6 @@ export default {
             this.movies = await MovieService.getAll();
         },
         create() {
-            const loadMovie = (movieOption) => {
-                return MovieService.getMovieByMovieOptionId(movieOption.id);
-            };
-
-            const openMovieDialog = (movie) => {
-                this.$refs[this.dialog.movie].open('create', movie, onFillMovie);
-            };
-
             const createMovie = (filledMovie) => {
                 return MovieService.create(filledMovie);
             };
@@ -84,14 +76,61 @@ export default {
                 this.doSignal();
             };
 
-            const onFillMovie = (filledMovie) => {
-                createMovie(filledMovie)
-                    .then(refreshTable);
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'O filme foi criado com sucesso!',
+                    life: 3000
+                });
+            };
+
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = (filledMovie) => {
+                this.$loading.wrap(
+                    createMovie(filledMovie)
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            const showConfirm = (filledMovie) => {
+                this.$confirm.require({
+                    header: 'Confirmação',
+                    message: 'Deseja realmente criar o filme?',
+                    acceptProps: {
+                        label: 'Sim'
+                    },
+                    rejectProps: {
+                        label: 'Não',
+                        severity: 'secondary'
+                    },
+                    accept: () => onAccept(filledMovie)
+                });
+            };
+
+            const loadMovie = (movieOption) => {
+                return MovieService.getMovieByMovieOptionId(movieOption.id);
+            };
+
+            const openMovieDialog = (movie) => {
+                this.$refs[this.dialog.movie].open('create', movie, showConfirm);
             };
 
             const onSelectMovieOption = (movieOption) => {
-                loadMovie(movieOption)
-                    .then(openMovieDialog);
+                this.$loading.wrap(
+                    loadMovie(movieOption)
+                        .then(openMovieDialog)
+                );
             };
 
             this.$refs[this.dialog.movieOption].open(onSelectMovieOption);
@@ -105,20 +144,99 @@ export default {
                 this.doSignal();
             };
 
-            const onFillMovie = (filledMovie) => {
-                updateMovie(filledMovie)
-                    .then(refreshTable);
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'O filme foi editado com sucesso!',
+                    life: 3000
+                });
             };
 
-            this.$refs[this.dialog.movie].open('edit', movie, onFillMovie);
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = (filledMovie) => {
+                this.$loading.wrap(
+                    updateMovie(filledMovie)
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            const showConfirm = (filledMovie) => {
+                this.$confirm.require({
+                    header: 'Confirmação',
+                    message: 'Deseja realmente editar o filme?',
+                    acceptProps: {
+                        label: 'Sim'
+                    },
+                    rejectProps: {
+                        label: 'Não',
+                        severity: 'secondary'
+                    },
+                    accept: () => onAccept(filledMovie)
+                });
+            };
+
+            this.$refs[this.dialog.movie].open('edit', movie, showConfirm);
         },
-        async remove(movie) {
-            try {
-                await MovieService.delete(movie.id);
+        remove(movie) {
+            const removeMovie = () => {
+                return MovieService.delete(movie.id);
+            };
+
+            const refreshTable = () => {
                 this.doSignal();
-            } catch (error) {
-                console.error(error.message);
-            }
+            };
+
+            const showSuccessMessage = () => {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: 'Successo',
+                    detail: 'O filme foi excluído com sucesso!',
+                    life: 3000
+                });
+            };
+
+            const showErrorMessage = (error) => {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message,
+                    life: 3000
+                });
+            };
+
+            const onAccept = () => {
+                this.$loading.wrap(
+                    removeMovie()
+                        .then(refreshTable)
+                        .then(showSuccessMessage)
+                        .catch(showErrorMessage)
+                );
+            };
+
+            this.$confirm.require({
+                header: 'Confirmação',
+                message: 'Deseja realmente excluir o filme?',
+                acceptProps: {
+                    label: 'Sim',
+                    severity: 'danger'
+                },
+                rejectProps: {
+                    label: 'Não',
+                    severity: 'secondary'
+                },
+                accept: onAccept
+            });
         }
     },
     mounted() {

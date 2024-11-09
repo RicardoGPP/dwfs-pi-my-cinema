@@ -40,6 +40,10 @@
                 <DatePicker
                     id="releaseDate"
                     v-model="releaseDate"
+                    dateFormat="dd/mm/yy"
+                    showIcon
+                    fluid
+                    iconDisplay="input"
                     placeholder="Digite a data de lançamento"
                 />
             </div>
@@ -52,7 +56,8 @@
                 <InputNumber
                     inputId="runtime"
                     v-model="movie.target.runtime"
-                     fluid
+                    fluid
+                    showButtons
                 />
             </div>
 
@@ -109,6 +114,7 @@
             <template #footer>
                 <Button
                     label="Aplicar"
+                    :disabled="!canApply"
                     @click="apply"
                 />
                 <Button
@@ -159,7 +165,13 @@ export default {
         },
         releaseDate: {
             get() {
-                const parts = this.movie.target.releaseDate.split('-');
+                const stringReleaseDate = this.movie.target.releaseDate;
+
+                if (_.isEmpty(stringReleaseDate)) {
+                    return null;
+                }
+
+                const parts = stringReleaseDate.split('-');
 
                 const year = Number(parts[0]);
                 const month = Number(parts[1]);
@@ -168,20 +180,59 @@ export default {
                 return new Date(year, month - 1, day);
             },
             set(releaseDate) {
-                const year = releaseDate.getFullYear();
-                const month = String(releaseDate.getMonth() + 1).padStart(2, '0');
-                const day = String(releaseDate.getDate()).padStart(2, '0');
+                let stringReleaseDate = null;
 
-                this.movie.target.releaseDate = `${year}-${month}-${day}`;
+                if (releaseDate) {
+                    const year = releaseDate.getFullYear();
+                    const month = String(releaseDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(releaseDate.getDate()).padStart(2, '0');
+
+                    stringReleaseDate = `${year}-${month}-${day}`;
+                }
+
+                this.movie.target.releaseDate = stringReleaseDate;
             }
         },
         genres: {
             get() {
-                return this.movie.target.genres.join(', ');
+                const arrayGenres = this.movie.target.genres;
+
+                if (_.isEmpty(arrayGenres)) {
+                    return null;
+                }
+
+                return arrayGenres.join(', ');
             },
             set(genres) {
-                this.movie.target.genres = genres.split(',').map((genre) => genre.trim());
+                let arrayGenres = [];
+
+                if (!_.isEmpty(genres)) {
+                    arrayGenres = genres.split(',').map((genre) => genre.trim());
+                }
+
+                this.movie.target.genres = arrayGenres;
             }
+        },
+        canApply() {
+            const requiredFields = [
+                'title',
+                'tagline',
+                'releaseDate',
+                'runtime',
+                'genres',
+                'posterPath',
+                'backdropPath',
+                'overview'
+            ];
+
+            for (let requiredField of requiredFields) {
+                if (this.isEmpty(this.movie.target[requiredField])) {
+                    console.log(requiredField, this.movie.target[requiredField]);
+                    return false;
+                }
+            }
+
+            return true;
         }
     },
     methods: {
@@ -204,6 +255,12 @@ export default {
         apply() {
             this.callback(this.movie.target);
             this.close();
+        },
+        isEmpty(value) {
+            if (_.isNumber(value)) {
+                return value === null || value === undefined;
+            }
+            return _.isEmpty(value);
         }
     }
 };
