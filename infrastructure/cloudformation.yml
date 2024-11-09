@@ -64,10 +64,12 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BucketName: !Ref FrontendBucketName
-      AccessControl: BucketOwnerFullControl
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
 
   MyCinemaElasticBeanstalkApplication:
     Type: AWS::ElasticBeanstalk::Application
