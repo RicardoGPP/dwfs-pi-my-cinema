@@ -249,14 +249,10 @@ public class SessionResource {
                 .build();
         }
 
-        Session session = new Session();
+        Session session = sessionMapper.fromSessionCreateDto_toSession(sessionCreateDto);
 
         session.setMovie(movie);
         session.setLocation(location);
-        session.setDate(sessionCreateDto.getDate());
-        session.setTime(sessionCreateDto.getTime());
-        session.setThreeD(sessionCreateDto.getThreeD());
-        session.setSubtitled(sessionCreateDto.getSubtitled());
 
         long id = sessionService.createSession(session);
 
@@ -327,7 +323,32 @@ public class SessionResource {
                 .build();
         }
 
+        long movieId = sessionUpdateDto.getMovieId();
+
+        Movie movie = movieService.getMovieById(movieId);
+
+        if (movie == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No movie could be found with ID " + movieId))
+                .build();
+        }
+
+        long locationId = sessionUpdateDto.getLocationId();
+
+        Location location = locationService.getLocationById(locationId);
+
+        if (location == null) {
+            return Response
+                .status(Response.Status.NOT_FOUND)
+                .entity(new AppError("No location could be found with ID " + locationId))
+                .build();
+        }
+
         Session newSession = sessionMapper.fromSessionUpdateDto_toSession(sessionUpdateDto);
+
+        newSession.setMovie(movie);
+        newSession.setLocation(location);
 
         sessionService.updateSession(oldSession, newSession);
 
