@@ -9,7 +9,7 @@ O diferencial do MyCinema está na integração com APIs modernas para enriquece
 ## Funcionalidades
 
 ### Para Clientes do Cinema
-- **Consulta de Filmes**: Veja facilmente quais filmes estão em cartaz, entrarão ou acabaram de sair de cartaz.
+- **Consulta de Filmes**: Veja facilmente quais filmes estão em cartaz.
 - **Detalhes do Filme**: Informações completas sobre o filme, incluindo resumos gerados por IA (OpenAI) a partir dos comentários dos espectadores.
 - **Comentários e Sentimentos**: Visualize o sentimento geral dos espectadores em relação a cada filme.
 - **Edição de Perfil**: Os usuários podem fazer edições em seus dados pessoais no site, incluindo informações do perfil.
