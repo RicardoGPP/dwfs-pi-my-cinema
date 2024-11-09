@@ -6,6 +6,9 @@
             cols="30"
             autoResize
         />
+        <span class="message" :invalid="leftChars < 0">
+            {{ leftChars }} caractere(s) restante(s).
+        </span>
         <div>
             <Button
                 label="Postar"
@@ -19,6 +22,7 @@
 <script>
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
+import _ from 'lodash';
 
 export default {
     name: 'CommentPanelCommentInput',
@@ -33,9 +37,10 @@ export default {
     },
     computed: {
         canPost() {
-            return this.text !== null
-                && this.text !== undefined
-                && this.text !== '';
+            return !_.isEmpty(this.text) && this.leftChars >= 0;
+        },
+        leftChars() {
+            return 150 - this.text?.length;
         }
     },
     methods: {
@@ -56,6 +61,15 @@ export default {
     & > div {
         display: flex;
         justify-content: flex-end;
+    }
+}
+
+.message {
+    color: #808080;
+    font-size: 12px;
+
+    &[invalid = true] {
+        color: #ff0000;
     }
 }
 </style>

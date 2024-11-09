@@ -35,6 +35,10 @@ export default {
     &[odd = true] {
         background-color: #181818;
     }
+
+    & > span {
+        word-break: break-word;
+    }
 }
 
 h4 {
