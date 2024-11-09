@@ -64,11 +64,6 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BucketName: !Ref FrontendBucketName
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html

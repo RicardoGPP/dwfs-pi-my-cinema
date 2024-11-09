@@ -211,4 +211,4 @@ jobs:
 
       # Uploads build artifact to S3.
       - name: Upload build artifact to S3
-        run: aws s3 sync frontend/dist/ s3://${{ secrets.FRONTEND_BUCKET_NAME }}/
+        run: aws s3 sync frontend/dist/ s3://${{ secrets.FRONTEND_BUCKET_NAME }}/ --acl public-read
