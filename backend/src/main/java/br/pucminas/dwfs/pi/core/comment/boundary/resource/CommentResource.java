@@ -322,13 +322,10 @@ public class CommentResource {
                 .build();
         }
 
-        boolean userIsNotTheCommentOwner = !comment.getUser().getEmail().equals(jwt.getClaim("upn"));
-        boolean userIsNotAdmin = !jwt.getGroups().contains(UserRole.ADMIN.name());
-
-        if (userIsNotTheCommentOwner && userIsNotAdmin) {
+        if (!isLoggedUserAllowedForThisRequest(comment)) {
             return Response
                 .status(Response.Status.FORBIDDEN)
-                .entity(new AppError("You are allowed to delete this comment."))
+                .entity(new AppError("You are not allowed to delete this comment"))
                 .build();
         }
 
@@ -401,5 +398,17 @@ public class CommentResource {
             .ok()
             .entity(summaryDto)
             .build();
+    }
+
+    private boolean isLoggedUserAllowedForThisRequest(Comment requestedComment) {
+        return isLoggedUserAdmin() || isLoggedUserTheCommentOwner(requestedComment);
+    }
+
+    private boolean isLoggedUserAdmin() {
+        return jwt.getGroups().contains(UserRole.ADMIN.name());
+    }
+
+    private boolean isLoggedUserTheCommentOwner(Comment requestedComment) {
+        return requestedComment.getUser().getEmail().equals(jwt.getClaim("upn"));
     }
 }

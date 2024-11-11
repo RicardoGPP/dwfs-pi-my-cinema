@@ -2,6 +2,7 @@ package br.pucminas.dwfs.pi.core.user.boundary.resource;
 
 import java.util.List;
 
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -19,6 +20,7 @@ import br.pucminas.dwfs.pi.core.user.boundary.dto.UserUpdateDto;
 import br.pucminas.dwfs.pi.core.user.control.mapper.UserMapper;
 import br.pucminas.dwfs.pi.core.user.control.service.UserService;
 import br.pucminas.dwfs.pi.core.user.entity.User;
+import br.pucminas.dwfs.pi.core.user.entity.UserRole;
 import br.pucminas.dwfs.pi.infra.exception.AppError;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -52,6 +54,9 @@ public class UserResource {
 
     @Inject
     UserMapper userMapper;
+
+    @Inject
+    JsonWebToken jwt;
 
     @GET
     @RolesAllowed("ADMIN")
@@ -134,6 +139,13 @@ public class UserResource {
             return Response
                 .status(Response.Status.NOT_FOUND)
                 .entity(new AppError("No user could be found with ID " + id))
+                .build();
+        }
+
+        if (!isLoggedUserAllowedForThisRequest(user)) {
+            return Response
+                .status(Response.Status.FORBIDDEN)
+                .entity(new AppError("You are allowed to retrieve this user"))
                 .build();
         }
 
@@ -245,6 +257,13 @@ public class UserResource {
                 .build();
         }
 
+        if (!isLoggedUserAllowedForThisRequest(oldUser)) {
+            return Response
+                .status(Response.Status.FORBIDDEN)
+                .entity(new AppError("You are allowed to update this user"))
+                .build();
+        }
+
         User newUser = userMapper.fromUserUpdateDto_toUser(userUpdateDto);
 
         userService.updateUser(oldUser, newUser);
@@ -305,6 +324,13 @@ public class UserResource {
             return Response
                 .status(Response.Status.NOT_FOUND)
                 .entity(new AppError("No user could be found with ID " + id))
+                .build();
+        }
+
+        if (!isLoggedUserAllowedForThisRequest(user)) {
+            return Response
+                .status(Response.Status.FORBIDDEN)
+                .entity(new AppError("You are allowed to delete this user"))
                 .build();
         }
 
@@ -372,5 +398,17 @@ public class UserResource {
             .ok()
             .entity(authTokenDto)
             .build();
+    }
+
+    private boolean isLoggedUserAllowedForThisRequest(User requestedUser) {
+        return isLoggedUserAdmin() || isLoggedUserTheSameAsTheRequestedOne(requestedUser);
+    }
+
+    private boolean isLoggedUserAdmin() {
+        return jwt.getGroups().contains(UserRole.ADMIN.name());
+    }
+
+    private boolean isLoggedUserTheSameAsTheRequestedOne(User requestedUser) {
+        return requestedUser.getEmail().equals(jwt.getClaim("upn"));
     }
 }
