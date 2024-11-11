@@ -16,6 +16,7 @@ import br.pucminas.dwfs.pi.core.movie.entity.MovieOption;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.extern.jbosslog.JBossLog;
 
 /**
  * Default implementation of {@link MovieService} with a basic behavior for its
@@ -25,6 +26,7 @@ import jakarta.transaction.Transactional;
  * @version 1.0
  * @since 30/10/2024
  */
+@JBossLog
 @ApplicationScoped
 public class MovieServiceDefault implements MovieService {
 
@@ -64,6 +66,7 @@ public class MovieServiceDefault implements MovieService {
         TmdbMovieOptionsDto dto = tmdbRestClient.getMovieOptionsByName(name, tmdbApiKey, tmdbLanguage);
 
         if (dto == null) {
+            log.warnf("No movie options could be found with name '%s'.", name);
             return Collections.emptyList();
         }
 
@@ -75,6 +78,7 @@ public class MovieServiceDefault implements MovieService {
         TmdbMovieDto dto = tmdbRestClient.getMovieById(movieOptionId, tmdbApiKey, tmdbLanguage);
 
         if (dto == null) {
+            log.warnf("No movie could be found with movie option ID %d.", movieOptionId);
             return null;
         }
 
@@ -85,6 +89,7 @@ public class MovieServiceDefault implements MovieService {
     @Transactional
     public long createMovie(Movie movie) {
         movieRepository.persist(movie);
+        log.infof("Movie created: %s.", movie);
         return movie.getId();
     }
 
@@ -99,11 +104,13 @@ public class MovieServiceDefault implements MovieService {
         oldMovie.setReleaseDate(newMovie.getReleaseDate());
         oldMovie.setPosterPath(newMovie.getPosterPath());
         oldMovie.setBackdropPath(newMovie.getBackdropPath());
+        log.infof("Movie updated: %s -> %s.", oldMovie, newMovie);
     }
 
     @Override
     @Transactional
     public void deleteMovie(Movie movie) {
         movieRepository.delete(movie);
+        log.infof("Movie deleted: %s.", movie);
     }
 }

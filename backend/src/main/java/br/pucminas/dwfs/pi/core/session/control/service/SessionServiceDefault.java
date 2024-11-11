@@ -8,6 +8,7 @@ import br.pucminas.dwfs.pi.core.session.entity.Session;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.extern.jbosslog.JBossLog;
 
 /**
  * Default implementation of {@link SessionService} with a basic behavior for
@@ -17,6 +18,7 @@ import jakarta.transaction.Transactional;
  * @version 1.0
  * @since 30/10/2024
  */
+@JBossLog
 @ApplicationScoped
 public class SessionServiceDefault implements SessionService {
 
@@ -42,6 +44,7 @@ public class SessionServiceDefault implements SessionService {
     @Transactional
     public long createSession(Session session) {
         sessionRepository.persist(session);
+        log.infof("Session created: %s.", session);
         return session.getId();
     }
 
@@ -54,11 +57,13 @@ public class SessionServiceDefault implements SessionService {
         oldSession.setTime(newSession.getTime());
         oldSession.setThreeD(newSession.isThreeD());
         oldSession.setSubtitled(newSession.isSubtitled());
+        log.infof("Session updated: %s -> %s.", oldSession, newSession);
     }
 
     @Override
     @Transactional
     public void deleteSession(Session session) {
         sessionRepository.deleteById(session.getId());
+        log.infof("Session deleted: %s.", session);
     }
 }

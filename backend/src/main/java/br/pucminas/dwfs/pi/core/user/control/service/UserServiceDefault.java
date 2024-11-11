@@ -67,6 +67,8 @@ public class UserServiceDefault implements UserService {
 
         userRepository.persist(user);
 
+        log.infof("User created: %s.", user);
+
         return user.getId();
     }
 
@@ -84,6 +86,8 @@ public class UserServiceDefault implements UserService {
         if (password != null) {
             oldUser.setPassword(PasswordUtil.encrypt(password));
         }
+
+        log.infof("User updated: %s -> %s.", oldUser, newUser);
     }
 
     @Override
@@ -92,7 +96,10 @@ public class UserServiceDefault implements UserService {
         if (isAdmin(user)) {
             throw new AppException("Cannot delete admin user");
         }
+
         userRepository.deleteById(user.getId());
+
+        log.infof("User deleted: %s.", user);
     }
 
     @Transactional

@@ -69,6 +69,7 @@ public class CommentServiceDefault implements CommentService {
     @Transactional
     public long createComment(Comment comment) {
         commentRepository.persist(comment);
+        log.infof("Comment created: %s.", comment);
         return comment.getId();
     }
 
@@ -76,6 +77,7 @@ public class CommentServiceDefault implements CommentService {
     @Transactional
     public void deleteComment(Comment comment) {
         commentRepository.deleteById(comment.getId());
+        log.infof("Comment deleted: %s.", comment);
     }
 
     @Override
