@@ -121,7 +121,7 @@ public class UserResource {
             )
         )
     )
-    public Response getById(
+    public Response getUserById(
         @PathParam("id")
         @Parameter(
             description = "The ID of the user.",
@@ -223,7 +223,7 @@ public class UserResource {
             )
         )
     )
-    public Response update(
+    public Response updateUser(
         @PathParam("id")
         @Parameter(
             description = "The ID of the user.",
@@ -292,7 +292,7 @@ public class UserResource {
             )
         )
     )
-    public Response delete(
+    public Response deleteUser(
         @PathParam("id")
         @Parameter(
             description = "The ID of the user.",
