@@ -45,27 +45,27 @@ public class Movie {
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 1000)
+    @Column(nullable = false, length = 1000)
     private String overview;
 
-    @Column
+    @Column(nullable = false)
     private String tagline;
 
-    @Column
+    @Column(nullable = false)
     private Integer runtime;
 
     @ElementCollection
-    @Column(name = "genre")
+    @Column(nullable = false, name = "genre")
     @CollectionTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie_id"))
     private List<String> genres;
 
-    @Column(name = "release_date")
+    @Column(nullable = false, name = "release_date")
     private String releaseDate;
 
-    @Column(name = "poster_path")
+    @Column(nullable = false, name = "poster_path")
     private String posterPath;
 
-    @Column(name = "backdrop_path")
+    @Column(nullable = false, name = "backdrop_path")
     private String backdropPath;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
