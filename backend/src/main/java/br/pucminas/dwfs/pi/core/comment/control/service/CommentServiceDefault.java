@@ -14,6 +14,7 @@ import br.pucminas.dwfs.pi.core.comment.boundary.restclient.OpenAIRestClient;
 import br.pucminas.dwfs.pi.core.comment.control.repository.CommentRepository;
 import br.pucminas.dwfs.pi.core.comment.entity.Comment;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -81,6 +82,7 @@ public class CommentServiceDefault implements CommentService {
     }
 
     @Override
+    @CacheResult(cacheName = "comments-summary")
     public String getSummary(Movie movie, List<Comment> comments) {
         if (comments.isEmpty()) {
             return null;
