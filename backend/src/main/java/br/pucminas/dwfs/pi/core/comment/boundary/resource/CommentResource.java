@@ -22,6 +22,7 @@ import br.pucminas.dwfs.pi.core.movie.control.service.MovieService;
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import br.pucminas.dwfs.pi.core.user.control.service.UserService;
 import br.pucminas.dwfs.pi.core.user.entity.User;
+import br.pucminas.dwfs.pi.core.user.entity.UserRole;
 import br.pucminas.dwfs.pi.infra.exception.AppError;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -318,6 +319,16 @@ public class CommentResource {
             return Response
                 .status(Response.Status.NOT_FOUND)
                 .entity(new AppError("No comment could be found with ID " + id))
+                .build();
+        }
+
+        boolean userIsNotTheCommentOwner = !comment.getUser().getEmail().equals(jwt.getClaim("upn"));
+        boolean userIsNotAdmin = !jwt.getGroups().contains(UserRole.ADMIN.name());
+
+        if (userIsNotTheCommentOwner && userIsNotAdmin) {
+            return Response
+                .status(Response.Status.FORBIDDEN)
+                .entity(new AppError("You are allowed to delete this comment."))
                 .build();
         }
 
