@@ -97,7 +97,7 @@ public class UserServiceDefault implements UserService {
             throw new AppException("Cannot delete admin user");
         }
 
-        userRepository.deleteById(user.getId());
+        userRepository.delete(user);
 
         log.infof("User deleted: %s.", user);
     }

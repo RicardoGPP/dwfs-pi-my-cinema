@@ -53,7 +53,7 @@ public class LocationServiceDefault implements LocationService {
     @Override
     @Transactional
     public void deleteLocation(Location location) {
-        locationRepository.deleteById(location.getId());
+        locationRepository.delete(location);
         log.infof("Location deleted: %s.", location);
     }
 }

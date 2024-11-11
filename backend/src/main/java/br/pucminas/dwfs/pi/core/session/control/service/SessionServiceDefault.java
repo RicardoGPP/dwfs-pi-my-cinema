@@ -63,7 +63,7 @@ public class SessionServiceDefault implements SessionService {
     @Override
     @Transactional
     public void deleteSession(Session session) {
-        sessionRepository.deleteById(session.getId());
+        sessionRepository.delete(session);
         log.infof("Session deleted: %s.", session);
     }
 }

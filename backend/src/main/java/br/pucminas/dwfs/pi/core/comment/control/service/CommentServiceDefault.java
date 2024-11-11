@@ -76,7 +76,7 @@ public class CommentServiceDefault implements CommentService {
     @Override
     @Transactional
     public void deleteComment(Comment comment) {
-        commentRepository.deleteById(comment.getId());
+        commentRepository.delete(comment);
         log.infof("Comment deleted: %s.", comment);
     }
 

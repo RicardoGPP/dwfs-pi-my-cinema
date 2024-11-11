@@ -1,5 +1,8 @@
 package br.pucminas.dwfs.pi.core.comment.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import br.pucminas.dwfs.pi.core.movie.entity.Movie;
 import br.pucminas.dwfs.pi.core.user.entity.User;
 import jakarta.persistence.Column;
@@ -40,10 +43,12 @@ public class Comment {
     private Long id;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
